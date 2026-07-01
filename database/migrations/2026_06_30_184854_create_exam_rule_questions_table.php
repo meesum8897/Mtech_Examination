@@ -1,0 +1,53 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('exam_question_rules', function (Blueprint $table) {
+
+            $table->id();
+
+            $table->foreignId('exam_id')
+                ->constrained('exams')
+                ->cascadeOnDelete();
+
+            $table->foreignId('question_category_id')
+                ->constrained('question_categories')
+                ->cascadeOnDelete();
+
+            $table->unsignedInteger('question_count');
+
+            $table->decimal('marks_per_question',5,2);
+
+            $table->tinyInteger('difficulty_level')
+                ->nullable();
+
+            $table->boolean('randomize')
+                ->default(true);
+
+            $table->timestamps();
+
+            $table->unique([
+                'exam_id',
+                'question_category_id'
+            ]);
+
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('exam_question_rules');
+    }
+};
