@@ -63,14 +63,32 @@
             </div>
 
             <!-- FORM -->
+@if($errors->any())
 
-            <form>
+    <div style="color:red">
 
+        {{ $errors->first() }}
+
+    </div>
+
+@endif
+
+@if(session('error'))
+
+<p style="color:red">
+
+    {{ session('error') }}
+
+</p>
+
+@endif
+            <form method="POST" action="{{ route('admin.login.submit') }}">
+                @csrf
                 <div class="admin-form-group">
 
-                    <label>Username</label>
+                    <label>Email</label>
 
-                    <input type="text" class="admin-input">
+                    <input type="text" class="admin-input" name="email" placeholder="Email" value="{{ old('email') }}">
 
                 </div>
 
@@ -78,11 +96,11 @@
 
                     <label>Password</label>
 
-                    <input type="password" class="admin-input">
+                    <input type="password" class="admin-input" name="password" placeholder="Enter Password">
 
                 </div>
 
-                <button class="admin-btn">
+                <button type="submit" class="admin-btn">
 
                     Login
 

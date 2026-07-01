@@ -1,4 +1,4 @@
-<x-admin.header/>
+<x-admin.header title="Dashboard" breadcrumb="Dashboard"/>
     
     <!-- CARDS -->
 

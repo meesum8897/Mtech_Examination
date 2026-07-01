@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Admin Dashboard</title>
+<title>M.T.E.S | {{ $title }}</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -27,49 +27,49 @@
 
     </div>
 
-    <ul class="admin-menu">
+<ul class="admin-menu">
 
-        <li class="active">
-            <a href="index.html">Dashboard</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+    </li>
 
-        <li>
-            <a href="students.html">Students</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.students.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.students.index') }}">Students</a>
+    </li>
 
-        <li>
-            <a href="teachers.html">Teachers</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.teachers.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.teachers.index') }}">Teachers</a>
+    </li>
 
-        <li>
-            <a href="courses.html">Courses</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.courses.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.courses.index') }}">Courses</a>
+    </li>
 
-        <li>
-            <a href="batches.html">Batches</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.batches.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.batches.index') }}">Batches</a>
+    </li>
 
-        <li>
-             <a href="questionbank.html">Question Bank</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.question-categories.*') || request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.questions.index') }}">Question Bank</a>
+    </li>
 
-        <li>
-            <a href="#">Exams</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.exams.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.exams.index') }}">Exams</a>
+    </li>
 
-        <li>
-            <a href="Assignexams.html">Assign Exams</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.assign-exams.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.assign-exams.index') }}">Assign Exams</a>
+    </li>
 
-        <li>
-            <a href="#">Results</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.results.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.results.index') }}">Results</a>
+    </li>
 
-        <li>
-            <a href="#">Settings</a>
-        </li>
+    <li class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+        <a href="{{ route('admin.settings.index') }}">Settings</a>
+    </li>
 
-    </ul>
+</ul>
 
 </div>
 
@@ -82,11 +82,11 @@
         <div>
 
             <h2>
-                Dashboard
+                {{ $breadcrumb }}
             </h2>
 
             <p>
-                Welcome back Admin
+                {{$msg}}
             </p>
 
         </div>
@@ -99,7 +99,7 @@
                 </div>
                 <div>
                     <h4>Administrator</h4>
-                    <small>Super Admin</small>
+                    <small>{{ Auth::user()->name }}</small>
                 </div>
             </div>
             <!-- DROPDOWN -->
@@ -107,7 +107,7 @@
                 <a href="#">
                     Settings
                 </a>
-                <a href="#">
+                <a href="{{ route('admin.logout') }}">
                     Logout
                 </a>
             </div>
