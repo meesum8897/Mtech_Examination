@@ -13,8 +13,8 @@ class Course extends Model
 
         'course_code',
         'course_name',
-        'duration_months',
-        'course_fee',
+        'duration',
+        'type',
         'description',
         'is_active',
         'created_by',
