@@ -83,8 +83,10 @@ public function store(Request $request)
     /**
      * Display the specified resource.
      */
-    public function edit(Course $course)
+    public function edit($id)
     {
+        $course = Course::findOrFail($id);
+
         return response()->json($course);
     }
 

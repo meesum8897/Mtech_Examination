@@ -190,7 +190,7 @@
 
                                 <button
                                     type="button"
-                                    class="action-btn view-btn"
+                                    class="action-btn view-teacher-btn"
                                     data-id="{{ $course->id }}">
 
                                     View
@@ -267,7 +267,41 @@
 
         <div class="pagination">
 
-            {{ $courses->links() }}
+            @if ($courses->onFirstPage())
+
+                <button disabled>Previous</button>
+
+            @else
+
+                <button onclick="window.location='{{ $courses->previousPageUrl() }}'">
+                    Previous
+                </button>
+
+            @endif
+
+            @for ($i = 1; $i <= $courses->lastPage(); $i++)
+
+                <button
+                    class="{{ $courses->currentPage() == $i ? 'active' : '' }}"
+                    onclick="window.location='{{ $courses->url($i) }}'">
+
+                    {{ $i }}
+
+                </button>
+
+            @endfor
+
+            @if ($courses->hasMorePages())
+
+                <button onclick="window.location='{{ $courses->nextPageUrl() }}'">
+                    Next
+                </button>
+
+            @else
+
+                <button disabled>Next</button>
+
+            @endif
 
         </div>
 
@@ -565,7 +599,7 @@ Swal.fire({
 EDIT COURSE MODAL
 ========================= -->
 
-<div class="modal" id="courseModal">
+<div class="modal" id="editCourseModal">
 
     <div class="modal-box">
 

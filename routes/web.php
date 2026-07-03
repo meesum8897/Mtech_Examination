@@ -85,8 +85,9 @@ Route::prefix('admin')
 
             Route::get('courses/{course}/view', [CourseController::class, 'show'])->name('courses.view');
 
-            Route::get('courses/{id}/edit-data', [CourseController::class, 'editData'])->name('courses.editData');
-
+/*             Route::get('courses/{id}/edit-data', [CourseController::class, 'editData'])->name('courses.editData');
+ */
+            Route::resource('courses', CourseController::class);
             Route::get('courses/{course}/view', [CourseController::class, 'show']);
 
             Route::resource('batches', BatchController::class);
@@ -94,6 +95,7 @@ Route::prefix('admin')
             Route::resource('students', StudentController::class);
 
             Route::resource('teachers', TeacherController::class);
+            
 
             Route::resource('question-categories', QuestionCategoryController::class);
 

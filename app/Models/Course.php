@@ -32,6 +32,7 @@ class Course extends Model
     {
         return $this->hasMany(Batch::class);
     }
+    
 
     public function questionCategories()
     {

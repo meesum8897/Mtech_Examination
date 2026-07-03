@@ -21,17 +21,11 @@ return new class extends Migration
 
             $table->string('batch_code',20)->unique();
 
-            $table->string('batch_name',150);
+            $table->string('batch_name',150)->nullable();
 
             $table->date('start_date');
 
             $table->date('end_date')->nullable();
-
-            $table->time('start_time');
-
-            $table->time('end_time');
-
-            $table->unsignedSmallInteger('capacity')->default(30);
 
             $table->text('remarks')->nullable();
 

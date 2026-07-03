@@ -16,9 +16,6 @@ class Batch extends Model
         'batch_name',
         'start_date',
         'end_date',
-        'start_time',
-        'end_time',
-        'capacity',
         'remarks',
         'is_active',
         'created_by',
@@ -36,6 +33,8 @@ class Batch extends Model
     {
         return $this->belongsTo(Course::class);
     }
+
+    
 
     public function teachers()
     {

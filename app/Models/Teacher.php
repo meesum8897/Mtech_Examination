@@ -12,21 +12,18 @@ class Teacher extends Model
     protected $fillable = [
 
         'teacher_code',
-        'name',
-        'email',
-        'phone',
+        'teacher_name',
+        'father_name',
         'cnic',
-        'gender',
+        'mobile',
+        'email',
         'qualification',
+        'designation',
         'experience',
         'joining_date',
-        'salary',
-        'address',
-        'photo',
         'is_active',
         'created_by',
-        'updated_by'
-
+        'updated_by',
     ];
 
     /*

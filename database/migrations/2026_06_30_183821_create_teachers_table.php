@@ -14,31 +14,21 @@ return new class extends Migration
         Schema::create('teachers', function (Blueprint $table) {
 
             $table->id();
-
-            $table->string('teacher_code',20)->unique();
-
-            $table->string('name');
-
-            $table->string('email')->unique();
-
-            $table->string('phone',20);
-
-            $table->string('cnic',20)->unique();
-
-            $table->enum('gender',['Male','Female','Other']);
-
+            $table->string('teacher_code', 20)->unique();
+            $table->string('teacher_name');
+            $table->string('father_name')->nullable();
+            $table->string('cnic', 20)->unique();
+            $table->string('mobile', 20)->unique();
+            $table->string('email')->nullable()->unique();
+            $table->enum('gender', ['Male', 'Female', 'Other'])->default('Male');
             $table->string('qualification')->nullable();
-
+            $table->string('designation')->nullable();
             $table->unsignedTinyInteger('experience')->default(0);
-
             $table->date('joining_date');
-
-            $table->decimal('salary',10,2)->default(0);
-
+            $table->decimal('salary', 10, 2)->default(0);
             $table->text('address')->nullable();
-
             $table->string('photo')->nullable();
-
+            $table->text('remarks')->nullable();
             $table->boolean('is_active')->default(true);
 
             $table->foreignId('created_by')
