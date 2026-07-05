@@ -14,6 +14,7 @@ class Batch extends Model
         'course_id',
         'batch_code',
         'batch_name',
+        'teacher_id',
         'start_date',
         'end_date',
         'remarks',
@@ -34,18 +35,6 @@ class Batch extends Model
         return $this->belongsTo(Course::class);
     }
 
-    
-
-    public function teachers()
-    {
-        return $this->belongsToMany(
-
-            Teacher::class,
-
-            'batch_teachers'
-
-        )->withTimestamps();
-    }
 
     public function students()
     {
@@ -55,5 +44,11 @@ class Batch extends Model
     public function assignments()
     {
         return $this->hasMany(ExamAssignment::class);
+    }
+
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
     }
 }

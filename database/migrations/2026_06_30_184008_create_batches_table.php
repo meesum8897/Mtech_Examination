@@ -22,12 +22,14 @@ return new class extends Migration
             $table->string('batch_code',20)->unique();
 
             $table->string('batch_name',150)->nullable();
+            
+            $table->foreignId('teacher_id')
+                  ->constrained('teachers')
+                  ->cascadeOnDelete();
 
             $table->date('start_date');
 
             $table->date('end_date')->nullable();
-
-            $table->text('remarks')->nullable();
 
             $table->boolean('is_active')->default(true);
 

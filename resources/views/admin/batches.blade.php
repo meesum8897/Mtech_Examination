@@ -28,37 +28,41 @@
     STATISTICS
     ===================================== -->
 
-    <div class="stats-grid">
+        <div class="stats-grid">
 
         <div class="stat-card">
 
             <h4>Total Batches</h4>
-            <h2>48</h2>
+
+            <h2>{{ $totalBatches }}</h2>
 
         </div>
 
         <div class="stat-card">
 
             <h4>Active Batches</h4>
-            <h2>42</h2>
+
+            <h2>{{ $activeBatches }}</h2>
 
         </div>
 
         <div class="stat-card">
 
-            <h4>Morning Batches</h4>
-            <h2>25</h2>
+            <h4>Inactive Batches</h4>
+
+            <h2>{{ $inactiveBatches }}</h2>
 
         </div>
 
         <div class="stat-card">
 
-            <h4>Evening Batches</h4>
-            <h2>17</h2>
+            <h4>Total Students</h4>
+
+            <h2>{{ $totalStudents }}</h2>
 
         </div>
 
-    </div>
+</div>
 
     <!-- =====================================
     FILTER SECTION
@@ -72,35 +76,43 @@
             type="text"
             class="form-control"
             placeholder="Search Batch Code / Name">
+            <select
+                class="form-control"
+                name="course_id">
 
-            <select class="form-control">
+                <option value="">All Courses</option>
 
-                <option>All Courses</option>
+                @foreach($courses as $course)
 
-                <option>MS Office</option>
-                <option>Web Designing</option>
-                <option>Graphic Designing</option>
-                <option>DIT</option>
+                    <option
+                        value="{{ $course->id }}"
+                        {{ request('course_id') == $course->id ? 'selected' : '' }}>
 
-            </select>
+                        {{ $course->course_name }}
 
-            <select class="form-control">
+                    </option>
 
-                <option>All Teachers</option>
-
-                <option>Ali Raza</option>
-                <option>Hassan Abbas</option>
-                <option>Murtaza Rizvi</option>
+                @endforeach
 
             </select>
 
-            <select class="form-control">
+            <select
+                class="form-control"
+                name="teacher_id">
 
-                <option>All Shifts</option>
+                <option value="">All Teachers</option>
 
-                <option>Morning</option>
-                <option>Evening</option>
-                <option>Weekend</option>
+                @foreach($teachers as $teacher)
+
+                    <option
+                        value="{{ $teacher->id }}"
+                        {{ request('teacher_id') == $teacher->id ? 'selected' : '' }}>
+
+                        {{ $teacher->teacher_name }}
+
+                    </option>
+
+                @endforeach
 
             </select>
 
@@ -155,7 +167,6 @@
                         <th>Batch Name</th>
                         <th>Course</th>
                         <th>Teacher</th>
-                        <th>Shift</th>
                         <th>Students</th>
                         <th>Start Date</th>
                         <th>Status</th>
@@ -167,197 +178,100 @@
 
                 <tbody>
 
-                    <tr>
+                    @forelse($batches as $batch)
 
-                        <td>MSO-MOR-01</td>
+                        <tr>
 
-                        <td>
-                            MS Office Morning
-                        </td>
+                            <td>{{ $batch->batch_code }}</td>
 
-                        <td>MS Office</td>
+                            <td>{{ $batch->batch_name }}</td>
 
-                        <td>Ali Raza</td>
+                            <td>{{ $batch->course?->course_name }}</td>
 
-                        <td>Morning</td>
+                            <td>{{ $batch->teacher?->teacher_name ?? '-' }}</td>
 
-                        <td>25</td>
+                            <td>{{ $batch->students->count() }}</td>
 
-                        <td>01-Jan-2026</td>
+                            <td>{{ \Carbon\Carbon::parse($batch->start_date)->format('d-M-Y') }}</td>
 
-                        <td>
+                            <td>
 
-                            <span class="badge-success">
-                                Active
-                            </span>
+                                @if($batch->is_active)
 
-                        </td>
+                                    <span class="badge-success">
+                                        Active
+                                    </span>
 
-                        <td>
+                                @else
 
-                            <div class="table-actions">
+                                    <span class="badge-danger">
+                                        Inactive
+                                    </span>
 
-                                <button
-                                class="action-btn view-btn">
+                                @endif
 
-                                    View
+                            </td>
 
-                                </button>
+                            <td>
 
-                                <button
-                                class="action-btn student-btn">
+                                <div class="table-actions">
 
-                                    Students
+                                    <button
+                                        type="button"
+                                        class="action-btn view-btn"
+                                        data-id="{{ $batch->id }}">
 
-                                </button>
+                                        View
 
-                                <button
-                                class="action-btn edit-btn">
+                                    </button>
 
-                                    Edit
+                                    <button
+                                        type="button"
+                                        class="action-btn edit-btn"
+                                        data-id="{{ $batch->id }}">
 
-                                </button>
+                                        Edit
 
-                                <button
-                                class="action-btn delete-btn">
+                                    </button>
 
-                                    Delete
+                                    <form
+                                        action="{{ route('admin.batches.destroy',$batch->id) }}"
+                                        method="POST"
+                                        class="delete-form"
+                                        style="display:inline;">
 
-                                </button>
+                                        @csrf
+                                        @method('DELETE')
 
-                            </div>
+                                        <button
+                                            type="submit"
+                                            class="action-btn delete-btn">
 
-                        </td>
+                                            Delete
 
-                    </tr>
+                                        </button>
 
-                    <tr>
+                                    </form>
 
-                        <td>WEB-EVE-01</td>
+                                </div>
 
-                        <td>
-                            Web Designing Evening
-                        </td>
+                            </td>
 
-                        <td>Web Designing</td>
+                        </tr>
 
-                        <td>Hassan Abbas</td>
+                        @empty
 
-                        <td>Evening</td>
+                        <tr>
 
-                        <td>18</td>
+                            <td colspan="8" style="text-align:center;padding:25px;">
 
-                        <td>05-Jan-2026</td>
+                                No courses found.
 
-                        <td>
+                            </td>
 
-                            <span class="badge-success">
-                                Active
-                            </span>
+                        </tr>
 
-                        </td>
-
-                        <td>
-
-                            <div class="table-actions">
-
-                                <button
-                                class="action-btn view-btn">
-
-                                    View
-
-                                </button>
-
-                                <button
-                                class="action-btn student-btn">
-
-                                    Students
-
-                                </button>
-
-                                <button
-                                class="action-btn edit-btn">
-
-                                    Edit
-
-                                </button>
-
-                                <button
-                                class="action-btn delete-btn">
-
-                                    Delete
-
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>GD-WKD-01</td>
-
-                        <td>
-                            Graphic Design Weekend
-                        </td>
-
-                        <td>Graphic Designing</td>
-
-                        <td>Murtaza Rizvi</td>
-
-                        <td>Weekend</td>
-
-                        <td>15</td>
-
-                        <td>10-Jan-2026</td>
-
-                        <td>
-
-                            <span class="badge-danger">
-                                Inactive
-                            </span>
-
-                        </td>
-
-                        <td>
-
-                            <div class="table-actions">
-
-                                <button
-                                class="action-btn view-btn">
-
-                                    View
-
-                                </button>
-
-                                <button
-                                class="action-btn student-btn">
-
-                                    Students
-
-                                </button>
-
-                                <button
-                                class="action-btn edit-btn">
-
-                                    Edit
-
-                                </button>
-
-                                <button
-                                class="action-btn delete-btn">
-
-                                    Delete
-
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
+                    @endforelse
 
                 </tbody>
 
@@ -369,25 +283,41 @@
 
         <div class="pagination">
 
-            <button>
-                Previous
-            </button>
+            @if ($batches->onFirstPage())
 
-            <button class="active">
-                1
-            </button>
+                <button disabled>Previous</button>
 
-            <button>
-                2
-            </button>
+            @else
 
-            <button>
-                3
-            </button>
+                <button onclick="window.location='{{ $batches->previousPageUrl() }}'">
+                    Previous
+                </button>
 
-            <button>
-                Next
-            </button>
+            @endif
+
+            @for ($i = 1; $i <= $batches->lastPage(); $i++)
+
+                <button
+                    class="{{ $batches->currentPage() == $i ? 'active' : '' }}"
+                    onclick="window.location='{{ $batches->url($i) }}'">
+
+                    {{ $i }}
+
+                </button>
+
+            @endfor
+
+            @if ($batches->hasMorePages())
+
+                <button onclick="window.location='{{ $batches->nextPageUrl() }}'">
+                    Next
+                </button>
+
+            @else
+
+                <button disabled>Next</button>
+
+            @endif
 
         </div>
 
@@ -395,112 +325,226 @@
 
 </div>
 
+
+<!-- ADD BATCH MODAL -->
 
 <div class="modal" id="batchModal">
 
     <div class="modal-box">
 
-        <div class="modal-header">
+        <form action="{{ route('admin.batches.store') }}" method="POST">
 
-            <h3>Add Batch</h3>
+            @csrf
 
-            <button class="close-modal">
-                ×
-            </button>
+            <div class="modal-header">
 
-        </div>
+                <h3>Add Batch</h3>
 
-        <div class="modal-body">
-
-            <div class="form-grid">
-
-                <input
-                type="text"
-                class="form-control"
-                placeholder="Batch Code">
-
-                <input
-                type="text"
-                class="form-control"
-                placeholder="Batch Name">
-
-                <select class="form-control">
-
-                    <option>Select Course</option>
-                    <option>MS Office</option>
-                    <option>Web Designing</option>
-
-                </select>
-
-                <select class="form-control">
-
-                    <option>Select Teacher</option>
-                    <option>Ali Raza</option>
-                    <option>Hassan Abbas</option>
-
-                </select>
-
-                <select class="form-control">
-
-                    <option>Select Shift</option>
-                    <option>Morning</option>
-                    <option>Evening</option>
-                    <option>Weekend</option>
-
-                </select>
-
-                <input
-                type="number"
-                class="form-control"
-                placeholder="Maximum Students">
-
-                <input
-                type="date"
-                class="form-control">
-
-                <input
-                type="date"
-                class="form-control">
+                <button type="button" class="close-modal">
+                    ×
+                </button>
 
             </div>
 
-            <br>
+            <div class="modal-body">
 
-            <select class="form-control">
+                <div class="form-grid">
 
-                <option>Active</option>
-                <option>Inactive</option>
+                    <!-- Batch Code -->
 
-            </select>
+                    <div>
 
-        </div>
+                        <input
+                            type="text"
+                            class="form-control @error('batch_code') is-invalid @enderror"
+                            name="batch_code"
+                            placeholder="Batch Code"
+                            value="{{ old('batch_code', $batchCode) }}"
+                            readonly>
 
-        <div class="modal-footer">
+                        @error('batch_code')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
 
-            <button
-            class="btn btn-dark close-modal">
+                    </div>
 
-                Cancel
+                    <!-- Batch Name -->
 
-            </button>
+                    <div>
 
-            <button
-            class="btn btn-primary"
-            id="saveBatchBtn">
+                        <input
+                            type="text"
+                            class="form-control @error('batch_name') is-invalid @enderror"
+                            name="batch_name"
+                            placeholder="Batch Name"
+                            value="{{ old('batch_name') }}">
 
-                Save Batch
+                        @error('batch_name')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
 
-            </button>
+                    </div>
 
-        </div>
+                    <!-- Course -->
+
+                    <div>
+
+                        <select
+                            class="form-control @error('course_id') is-invalid @enderror"
+                            name="course_id">
+
+                            <option disabled {{ old('course_id') ? '' : 'selected' }}>
+                                Select Course
+                            </option>
+
+                            @foreach($courses as $course)
+
+                                <option
+                                    value="{{ $course->id }}"
+                                    {{ old('course_id') == $course->id ? 'selected' : '' }}>
+
+                                    {{ $course->course_name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        @error('course_id')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    {{-- Start Teacher --}}
+
+                     <div>
+
+                        <select
+                            class="form-control @error('teacher_id') is-invalid @enderror"
+                            name="teacher_id">
+
+                            <option disabled selected>
+                                Select Teacher
+                            </option>
+
+                            @foreach($teachers as $teacher)
+
+                                <option
+                                    value="{{ $teacher->id }}"
+                                    {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
+
+                                    {{ $teacher->teacher_name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        @error('teacher_id')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    <!-- Start Date -->
+
+                    <div>
+
+                        <input
+                            type="date"
+                            class="form-control @error('start_date') is-invalid @enderror"
+                            name="start_date"
+                            value="{{ old('start_date') }}">
+
+                        @error('start_date')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    <!-- End Date -->
+
+                    <div>
+
+                        <input
+                            type="date"
+                            class="form-control @error('end_date') is-invalid @enderror"
+                            name="end_date"
+                            value="{{ old('end_date') }}">
+
+                        @error('end_date')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    <!-- Status -->
+
+                    <div>
+
+                        <select
+                            class="form-control @error('is_active') is-invalid @enderror"
+                            name="is_active">
+
+                            <option value="1"
+                                {{ old('is_active',1)=='1' ? 'selected' : '' }}>
+                                Active
+                            </option>
+
+                            <option value="0"
+                                {{ old('is_active')=='0' ? 'selected' : '' }}>
+                                Inactive
+                            </option>
+
+                        </select>
+
+                        @error('is_active')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-dark close-modal">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Save Batch
+
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 
 </div>
 
+
+<!-- =========================
+VIEW COURSE MODAL
+========================= -->
+
 <div class="modal" id="viewBatchModal">
 
-    <div class="modal-box">
+    <div class="modal-box" style="max-width:700px;">
 
         <div class="modal-header">
 
@@ -514,42 +558,48 @@
 
         <div class="modal-body">
 
-            <div class="details-grid">
+            <div class="form-grid">
 
                 <div>
                     <strong>Batch Code</strong>
-                    <p>MSO-MOR-01</p>
+                    <p id="view_batch_code"></p>
                 </div>
 
                 <div>
                     <strong>Batch Name</strong>
-                    <p>MS Office Morning</p>
+                    <p id="view_batch_name"></p>
                 </div>
 
                 <div>
                     <strong>Course</strong>
-                    <p>MS Office</p>
+                    <p id="view_course_name"></p>
                 </div>
 
                 <div>
                     <strong>Teacher</strong>
-                    <p>Ali Raza</p>
+                    <p id="view_teacher_name"></p>
                 </div>
 
                 <div>
-                    <strong>Shift</strong>
-                    <p>Morning</p>
+                    <strong>Start Date</strong>
+                    <p id="view_start_date"></p>
                 </div>
 
                 <div>
-                    <strong>Students</strong>
-                    <p>25</p>
+                    <strong>End Date</strong>
+                    <p id="view_end_date"></p>
+                </div>
+
+                <div>
+                    <strong>Total Students</strong>
+                    <p id="view_students"></p>
                 </div>
 
                 <div>
                     <strong>Status</strong>
-                    <p>Active</p>
+                    <p id="view_status"></p>
                 </div>
+
 
             </div>
 
@@ -559,7 +609,276 @@
 
 </div>
 
+<!-- =========================
+EDIT BATCH MODAL
+========================= -->
+
+<div class="modal" id="editBatchModal">
+
+    <div class="modal-box">
+
+        <form id="editBatchForm" action="" method="POST">
+
+            @csrf
+            @method('PUT')
+
+            <div class="modal-header">
+
+                <h3>Edit Batch</h3>
+
+                <button type="button" class="close-modal">
+                    ×
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="form-grid">
+
+                    <!-- Batch Code -->
+
+                    <div>
+
+                        <input
+                            type="text"
+                            id="edit_batch_code"
+                            class="form-control @error('batch_code') is-invalid @enderror"
+                            placeholder="Batch Code"
+                            name="batch_code"
+                            value="{{ old('batch_code') }}">
+
+                        @error('batch_code')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    <!-- Batch Name -->
+
+                    <div>
+
+                        <input
+                            type="text"
+                            id="edit_batch_name"
+                            class="form-control @error('batch_name') is-invalid @enderror"
+                            placeholder="Batch Name"
+                            name="batch_name"
+                            value="{{ old('batch_name') }}">
+
+                        @error('batch_name')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    <!-- Course -->
+
+                    <div>
+
+                        <select
+                            id="edit_course_id"
+                            class="form-control @error('course_id') is-invalid @enderror"
+                            name="course_id">
+
+                            <option disabled selected>
+                                Select Course
+                            </option>
+
+                            @foreach($courses as $course)
+
+                                <option value="{{ $course->id }}">
+
+                                    {{ $course->course_name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        @error('course_id')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    <!-- Teacher -->
+
+                    <div>
+
+                        <select
+                            id="edit_teacher_id"
+                            class="form-control @error('teacher_id') is-invalid @enderror"
+                            name="teacher_id">
+
+                            <option disabled selected>
+                                Select Teacher
+                            </option>
+
+                            @foreach($teachers as $teacher)
+
+                                <option value="{{ $teacher->id }}">
+
+                                    {{ $teacher->teacher_name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                        @error('teacher_id')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    <!-- Start Date -->
+
+                    <div>
+
+                        <input
+                            type="date"
+                            id="edit_start_date"
+                            class="form-control @error('start_date') is-invalid @enderror"
+                            name="start_date"
+                            value="{{ old('start_date') }}">
+
+                        @error('start_date')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    <!-- End Date -->
+
+                    <div>
+
+                        <input
+                            type="date"
+                            id="edit_end_date"
+                            class="form-control @error('end_date') is-invalid @enderror"
+                            name="end_date"
+                            value="{{ old('end_date') }}">
+
+                        @error('end_date')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <!-- Status -->
+
+                <select
+                    id="edit_is_active"
+                    class="form-control @error('is_active') is-invalid @enderror"
+                    name="is_active">
+
+                    <option value="1">
+                        Active
+                    </option>
+
+                    <option value="0">
+                        Inactive
+                    </option>
+
+                </select>
+
+                @error('is_active')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-dark close-modal">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Update Batch
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
 
 
 </body>
+@if(session('success'))
+
+<script>
+
+Swal.fire({
+
+    icon:'success',
+
+    title:'Success',
+
+    text:'{{ session('success') }}',
+
+    timer:2500,
+
+    showConfirmButton:false
+
+});
+
+</script>
+
+@endif
+
+@if ($errors->any())
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function(){
+
+    $('#batchModal').fadeIn();
+
+});
+
+</script>
+
+@endif
+
+@if(session('success'))
+
+<script>
+
+Swal.fire({
+
+    icon: 'success',
+
+    title: 'Success',
+
+    text: '{{ session('success') }}',
+
+    timer: 2500,
+
+    showConfirmButton: false
+
+});
+
+</script>
+
+@endif
 </html>

@@ -6,28 +6,32 @@
         <div class="stat-card">
 
             <h4>Total Students</h4>
-            <h2>1250</h2>
+
+            <h2>{{ $totalStudents }}</h2>
 
         </div>
 
         <div class="stat-card">
 
             <h4>Active Students</h4>
-            <h2>1180</h2>
+
+            <h2>{{ $activeStudents }}</h2>
 
         </div>
 
         <div class="stat-card">
 
             <h4>Diploma Students</h4>
-            <h2>450</h2>
+
+            <h2>{{ $diplomaStudents }}</h2>
 
         </div>
 
         <div class="stat-card">
 
-            <h4>Short Courses</h4>
-            <h2>730</h2>
+            <h4>Short Course Students</h4>
+
+            <h2>{{ $shortCourseStudents }}</h2>
 
         </div>
 
@@ -58,38 +62,94 @@
 
     </div>
 
-    <!-- FILTERS -->
+<form method="GET" action="{{ route('admin.students.index') }}">
 
     <div class="filter-card">
 
         <div class="filter-grid">
 
-            <input type="text"
-                   class="form-control"
-                   placeholder="Search Student Name, ID or Mobile">
+            <!-- Search -->
 
-            <select class="form-control">
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Search Student Name, ID or Mobile"
+                value="{{ request('search') }}">
 
-                <option>All Courses</option>
-                <option>MS Office</option>
-                <option>Web Designing</option>
-                <option>Graphic Designing</option>
+            <!-- Course -->
+
+            <select
+                name="course_id"
+                class="form-control">
+
+                <option value="">
+                    All Courses
+                </option>
+
+                @foreach($courses as $course)
+
+                    <option
+                        value="{{ $course->id }}"
+                        {{ request('course_id') == $course->id ? 'selected' : '' }}>
+
+                        {{ $course->course_name }}
+
+                    </option>
+
+                @endforeach
 
             </select>
 
-            <select class="form-control">
+            <!-- Batch -->
 
-                <option>All Batches</option>
-                <option>B-2401</option>
-                <option>B-2402</option>
+            <select
+                name="batch_id"
+                class="form-control">
+
+                <option value="">
+                    All Batches
+                </option>
+
+                @foreach($batches as $batch)
+
+                    <option
+                        value="{{ $batch->id }}"
+                        {{ request('batch_id') == $batch->id ? 'selected' : '' }}>
+
+                        {{ $batch->batch_name }}
+
+                    </option>
+
+                @endforeach
 
             </select>
 
-            <select class="form-control">
+            <!-- Status -->
 
-                <option>All Status</option>
-                <option>Active</option>
-                <option>Inactive</option>
+            <select
+                name="status"
+                class="form-control">
+
+                <option value="">
+                    All Status
+                </option>
+
+                <option
+                    value="1"
+                    {{ request('status') === '1' ? 'selected' : '' }}>
+
+                    Active
+
+                </option>
+
+                <option
+                    value="0"
+                    {{ request('status') === '0' ? 'selected' : '' }}>
+
+                    Inactive
+
+                </option>
 
             </select>
 
@@ -97,8 +157,12 @@
 
         <div class="filter-actions">
 
-            <button class="btn btn-primary">
+            <button
+                type="submit"
+                class="btn btn-primary">
+
                 Search
+
             </button>
 
             <button class="btn btn-light">
@@ -109,31 +173,37 @@
 
     </div>
 
+</form>
+
     <!-- TABLE -->
 
-    <div class="table-card">
+<div class="table-card">
 
-        <div class="table-card-header">
+    <div class="table-card-header">
 
-            <h3>Teachers List</h3>
+        <h3>
+            Student List
+        </h3>
 
-        </div>
+    </div>
 
-        <div class="table-responsive">
-        <table class="admin-table">
+    <div class="table-responsive">
+
+        <table class="custom-table">
 
             <thead>
 
                 <tr>
 
-                    <th>Student ID</th>
-                    <th>Full Name</th>
+                    <th>Student Code</th>
+                    <th>Roll No</th>
+                    <th>Student Name</th>
                     <th>Father Name</th>
-                    <th>Batch</th>
                     <th>Course</th>
-                    <th>Semester</th>
+                    <th>Batch</th>
+                    <th>Phone</th>
                     <th>Status</th>
-                    <th width="180">Actions</th>
+                    <th>Actions</th>
 
                 </tr>
 
@@ -141,206 +211,541 @@
 
             <tbody>
 
-                <tr>
+                @forelse($students as $student)
 
-                    <td>ST2026-001</td>
-                    <td>Ali Raza</td>
-                    <td>Hassan Raza</td>
-                    <td>B-2401</td>
-                    <td>MS Office</td>
-                    <td>1</td>
+                    <tr>
 
-                    <td>
-                        <span class="badge-success">
-                            Active
-                        </span>
-                    </td>
+                        <td>{{ $student->student_code }}</td>
 
-                    <td>
+                        <td>{{ $student->roll_no }}</td>
 
-                        <div class="action-buttons">
+                        <td>
 
-                            <button class="btn-view">
-                                View
-                            </button>
+                            {{ $student->first_name }}
 
-                            <button class="btn-edit editStudentBtn">
-                                Edit
-                            </button>
+                            {{ $student->last_name }}
 
-                            <button class="btn-delete deleteStudentBtn">
-                                Delete
-                            </button>
+                        </td>
 
-                        </div>
+                        <td>{{ $student->father_name }}</td>
 
-                    </td>
+                        <td>
 
-                </tr>
+                            {{ $student->batch->course->course_name ?? '-' }}
 
-                <tr>
+                        </td>
 
-                    <td>ST2026-002</td>
-                    <td>Ahmed Khan</td>
-                    <td>Rashid Khan</td>
-                    <td>B-2401</td>
-                    <td>Web Designing</td>
-                    <td>1</td>
+                        <td>
 
-                    <td>
-                        <span class="badge-success">
-                            Active
-                        </span>
-                    </td>
+                            {{ $student->batch->batch_name ?? '-' }}
 
-                    <td>
+                        </td>
 
-                        <div class="action-buttons">
+                        <td>{{ $student->phone }}</td>
 
-                            <button class="btn-view">
-                                View
-                            </button>
+                        <td>
 
-                            <button class="btn-edit editStudentBtn">
-                                Edit
-                            </button>
+                            @if($student->is_active)
 
-                            <button class="btn-delete deleteStudentBtn">
-                                Delete
-                            </button>
+                                <span class="badge-success">
 
-                        </div>
+                                    Active
 
-                    </td>
+                                </span>
 
-                </tr>
+                            @else
 
-                <tr>
+                                <span class="badge-danger">
 
-                    <td>ST2026-003</td>
-                    <td>Bilal Ahmed</td>
-                    <td>Akram Ahmed</td>
-                    <td>B-2402</td>
-                    <td>Graphic Designing</td>
-                    <td>2</td>
+                                    Inactive
 
-                    <td>
-                        <span class="badge-danger">
-                            Inactive
-                        </span>
-                    </td>
+                                </span>
 
-                    <td>
+                            @endif
 
-                        <div class="action-buttons">
+                        </td>
 
-                            <button class="btn-view">
-                                View
-                            </button>
+                        <td>
 
-                            <button class="btn-edit editStudentBtn">
-                                Edit
-                            </button>
+                            <div class="table-actions">
 
-                            <button class="btn-delete deleteStudentBtn">
-                                Delete
-                            </button>
+                                <button
+                                    class="action-btn view-btn"
+                                    data-id="{{ $student->id }}">
 
-                        </div>
+                                    View
 
-                    </td>
+                                </button>
 
-                </tr>
+                                <button
+                                    class="action-btn edit-btn"
+                                    data-id="{{ $student->id }}">
+
+                                    Edit
+
+                                </button>
+
+                                <form
+                                    action="{{ route('admin.students.destroy',$student->id) }}"
+                                    method="POST"
+                                    class="delete-form"
+                                    style="display:inline;">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button
+                                        type="submit"
+                                        class="action-btn delete-btn">
+
+                                        Delete
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                @empty
+                    <tr>
+                        <td colspan="8" style="text-align:center;padding:25px;">
+                            No courses found.
+                        </td>
+                    </tr>
+                @endforelse
 
             </tbody>
 
         </table>
-        </div>
+
+    </div>
 
     <!-- PAGINATION -->
 
     <div class="pagination">
 
-        <button>Previous</button>
+        @if ($students->onFirstPage())
 
-        <button class="active">1</button>
-        <button>2</button>
-        <button>3</button>
+            <button disabled>
 
-        <button>Next</button>
+                Previous
+
+            </button>
+
+        @else
+
+            <button onclick="window.location='{{ $students->previousPageUrl() }}'">
+
+                Previous
+
+            </button>
+
+        @endif
+
+        @for ($i = 1; $i <= $students->lastPage(); $i++)
+
+            <button
+                class="{{ $students->currentPage() == $i ? 'active' : '' }}"
+                onclick="window.location='{{ $students->url($i) }}'">
+
+                {{ $i }}
+
+            </button>
+
+        @endfor
+
+        @if ($students->hasMorePages())
+
+            <button onclick="window.location='{{ $students->nextPageUrl() }}'">
+
+                Next
+
+            </button>
+
+        @else
+
+            <button disabled>
+
+                Next
+
+            </button>
+
+        @endif
 
     </div>
-    </div>
 
 
-</div>
-
-<!-- ADD STUDENT MODAL -->
+<!-- =========================
+ADD STUDENT MODAL
+========================= -->
 
 <div class="modal" id="studentModal">
 
     <div class="modal-box">
 
-        <div class="modal-header">
+        <form action="{{ route('admin.students.store') }}" method="POST" enctype="multipart/form-data">
 
-            <h3>Add Student</h3>
+            @csrf
 
-            <button class="closeModal">
-                ×
-            </button>
+            <div class="modal-header">
 
-        </div>
+                <h3>Add Student</h3>
 
-        <div class="modal-body">
+                <button type="button" class="close-modal">
+                    ×
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="form-grid">
+
+                    <!-- Student Code -->
+
+                    <div>
+
+                        <input
+                            type="text"
+                            id="student_code"
+                            class="form-control @error('student_code') is-invalid @enderror"
+                            name="student_code"
+                            value="{{ old('student_code', $studentCode) }}"
+                            readonly/>
+
+                        @error('student_code')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+
+                    </div>
+
+                    <!-- Roll No -->
+
+                        <div>
+
+                            <input
+                                type="text"
+                                id="roll_no"
+                                class="form-control @error('roll_no') is-invalid @enderror"
+                                name="roll_no"
+                                value="{{ old('roll_no', $generatedRollNo) }}"
+                                placeholder="Roll No"
+                                readonly>
+
+                            @error('roll_no')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+
+                        </div>
+
+                    <!-- Batch -->
+
+    <div>
+
+        <select id="batch_id" name="batch_id" class="form-control">
+
+            <option value="">Select Batch</option>
+
+            @foreach($batches as $batch)
+
+                <option value="{{ $batch->id }}">
+
+                    {{ $batch->batch_code }} - {{ $batch->batch_name }}
+
+                </option>
+
+            @endforeach
+
+        </select>
+
+        @error('batch_id')
+            <small class="text-danger">{{ $message }}</small>
+        @enderror
+
+    </div>
+
+                    <!-- Gender -->
+
+                <div>
+
+                    <select
+                        name="gender"
+                        class="form-control @error('gender') is-invalid @enderror">
+
+                        <option selected disabled>
+                            Select Gender
+                        </option>
+
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+
+                    </select>
+
+                    @error('gender')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- First Name -->
+
+                <div>
+
+                    <input
+                        type="text"
+                        class="form-control @error('first_name') is-invalid @enderror"
+                        name="first_name"
+                        placeholder="First Name"
+                        value="{{ old('first_name') }}">
+
+                    @error('first_name')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- Last Name -->
+
+                <div>
+
+                    <input
+                        type="text"
+                        class="form-control @error('last_name') is-invalid @enderror"
+                        name="last_name"
+                        placeholder="Last Name"
+                        value="{{ old('last_name') }}">
+
+                    @error('last_name')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- Father Name -->
+
+                <div>
+
+                    <input
+                        type="text"
+                        class="form-control @error('father_name') is-invalid @enderror"
+                        name="father_name"
+                        placeholder="Father Name"
+                        value="{{ old('father_name') }}">
+
+                    @error('father_name')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- Date of Birth -->
+
+                <div>
+
+                    <input
+                        type="date"
+                        class="form-control @error('dob') is-invalid @enderror"
+                        name="dob"
+                        value="{{ old('dob') }}">
+
+                    @error('dob')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- CNIC -->
+
+                <div>
+
+                    <input
+                        type="text"
+                        class="form-control @error('cnic') is-invalid @enderror"
+                        name="cnic"
+                        placeholder="CNIC / B-Form"
+                        value="{{ old('cnic') }}">
+
+                    @error('cnic')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- Phone -->
+
+                <div>
+
+                    <input
+                        type="text"
+                        class="form-control @error('phone') is-invalid @enderror"
+                        name="phone"
+                        placeholder="Mobile"
+                        value="{{ old('phone') }}">
+
+                    @error('phone')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- Guardian Phone -->
+
+                <div>
+
+                    <input
+                        type="text"
+                        class="form-control @error('guardian_phone') is-invalid @enderror"
+                        name="guardian_phone"
+                        placeholder="Guardian Phone"
+                        value="{{ old('guardian_phone') }}">
+
+                    @error('guardian_phone')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- Email -->
+
+                <div>
+
+                    <input
+                        type="email"
+                        class="form-control @error('email') is-invalid @enderror"
+                        name="email"
+                        placeholder="Email"
+                        value="{{ old('email') }}">
+
+                    @error('email')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- Admission Date -->
+
+                <div>
+
+                    <input
+                        type="date"
+                        class="form-control @error('admission_date') is-invalid @enderror"
+                        name="admission_date"
+                        value="{{ old('admission_date') }}">
+
+                    @error('admission_date')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+                <!-- Status -->
+
+                <div>
+
+                <select
+                    name="is_active"
+                    class="form-control @error('is_active') is-invalid @enderror">
+
+                    <option value="1" {{ old('is_active','1')=='1' ? 'selected' : '' }}>
+                        Active
+                    </option>
+
+                    <option value="0" {{ old('is_active')=='0' ? 'selected' : '' }}>
+                        Inactive
+                    </option>
+
+                </select>
+
+                    @error('is_active')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+
+                </div>
+
+            </div>
+
+            <br>
+
+            <!-- Address -->
+            <div>
+                <textarea
+                    class="form-control @error('address') is-invalid @enderror"
+                    name="address"
+                    placeholder="Address"
+                    style="height:100px;">{{ old('address') }}</textarea>
+
+                @error('address')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+            <br>
 
             <div class="form-grid">
 
-                <input type="text" class="form-control" placeholder="Student ID">
-                <input type="text" class="form-control" placeholder="Batch Code">
+                <!-- Password -->
 
-                <input type="text" class="form-control" placeholder="Full Name">
-                <input type="text" class="form-control" placeholder="Father Name">
+                <div>
 
-                <input type="text" class="form-control" placeholder="Mobile">
-                <input type="email" class="form-control" placeholder="Email">
+                    <input
+                        type="text"
+                        id="password"
+                        class="form-control @error('password') is-invalid @enderror"
+                        name="password"
+                        value="{{ old('password', $generatedPassword) }}"
+                        readonly>
 
-                <select class="form-control">
+                    @error('password')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
 
-                    <option>Select Course</option>
+                </div>
 
-                </select>
+                <!-- Confirm Password -->
 
-                <select class="form-control">
+                <div>
 
-                    <option>Select Semester</option>
+                    <input
+                        type="text"
+                        id="password_confirmation"
+                        class="form-control"
+                        name="password_confirmation"
+                        value="{{ old('password_confirmation', $generatedPassword) }}"
+                        readonly>
 
-                </select>
-
-                <input type="password" class="form-control" placeholder="Password">
-                <input type="password" class="form-control" placeholder="Confirm Password">
-
-                <select class="form-control">
-
-                    <option>Active</option>
-                    <option>Inactive</option>
-
-                </select>
+                </div>
 
             </div>
+
+            <br>
 
         </div>
 
         <div class="modal-footer">
 
-            <button class="btn btn-light closeModal cancelbtn">
+            <button
+                type="button"
+                class="btn btn-dark close-modal">
+
                 Cancel
+
             </button>
 
-            <button class="btn btn-primary">
+            <button
+                type="submit"
+                class="btn btn-primary">
+
                 Save Student
+
             </button>
 
         </div>
+
+        </form>
 
     </div>
 
@@ -375,4 +780,61 @@
 </div>
 
 </body>
+@if(session('success'))
+
+<script>
+
+Swal.fire({
+
+    icon:'success',
+
+    title:'Success',
+
+    text:'{{ session('success') }}',
+
+    timer:2500,
+
+    showConfirmButton:false
+
+});
+
+</script>
+
+@endif
+
+@if ($errors->any())
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function(){
+
+    $('#studentModal').fadeIn();
+
+});
+
+</script>
+
+@endif
+
+@if(session('success'))
+
+<script>
+
+Swal.fire({
+
+    icon: 'success',
+
+    title: 'Success',
+
+    text: '{{ session('success') }}',
+
+    timer: 2500,
+
+    showConfirmButton: false
+
+});
+
+</script>
+
+@endif
 </html>

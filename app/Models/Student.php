@@ -13,45 +13,25 @@ class Student extends Authenticatable
     protected $fillable = [
 
         'batch_id',
-
         'student_code',
-
         'roll_no',
-
         'first_name',
-
         'last_name',
-
         'father_name',
-
         'gender',
-
         'dob',
-
         'cnic',
-
         'email',
-
         'phone',
-
         'guardian_phone',
-
         'address',
-
         'admission_date',
-
         'photo',
-
         'password',
-
         'last_login_at',
-
         'is_active',
-
         'created_by',
-
         'updated_by'
-
     ];
 
   protected $hidden = [
@@ -67,13 +47,9 @@ class Student extends Authenticatable
         return [
 
             'password' => 'hashed',
-
             'dob' => 'date',
-
             'admission_date' => 'date',
-
             'last_login_at' => 'datetime',
-
             'is_active' => 'boolean',
 
         ];

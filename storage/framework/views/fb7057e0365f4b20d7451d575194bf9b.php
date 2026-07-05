@@ -47,37 +47,41 @@
     STATISTICS
     ===================================== -->
 
-    <div class="stats-grid">
+        <div class="stats-grid">
 
         <div class="stat-card">
 
             <h4>Total Batches</h4>
-            <h2>48</h2>
+
+            <h2><?php echo e($totalBatches); ?></h2>
 
         </div>
 
         <div class="stat-card">
 
             <h4>Active Batches</h4>
-            <h2>42</h2>
+
+            <h2><?php echo e($activeBatches); ?></h2>
 
         </div>
 
         <div class="stat-card">
 
-            <h4>Morning Batches</h4>
-            <h2>25</h2>
+            <h4>Inactive Batches</h4>
+
+            <h2><?php echo e($inactiveBatches); ?></h2>
 
         </div>
 
         <div class="stat-card">
 
-            <h4>Evening Batches</h4>
-            <h2>17</h2>
+            <h4>Total Students</h4>
+
+            <h2><?php echo e($totalStudents); ?></h2>
 
         </div>
 
-    </div>
+</div>
 
     <!-- =====================================
     FILTER SECTION
@@ -91,35 +95,45 @@
             type="text"
             class="form-control"
             placeholder="Search Batch Code / Name">
+            <select
+                class="form-control"
+                name="course_id">
 
-            <select class="form-control">
+                <option value="">All Courses</option>
 
-                <option>All Courses</option>
+                <?php $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-                <option>MS Office</option>
-                <option>Web Designing</option>
-                <option>Graphic Designing</option>
-                <option>DIT</option>
+                    <option
+                        value="<?php echo e($course->id); ?>"
+                        <?php echo e(request('course_id') == $course->id ? 'selected' : ''); ?>>
+
+                        <?php echo e($course->course_name); ?>
+
+
+                    </option>
+
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
             </select>
 
-            <select class="form-control">
+            <select
+                class="form-control"
+                name="teacher_id">
 
-                <option>All Teachers</option>
+                <option value="">All Teachers</option>
 
-                <option>Ali Raza</option>
-                <option>Hassan Abbas</option>
-                <option>Murtaza Rizvi</option>
+                <?php $__currentLoopData = $teachers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $teacher): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
 
-            </select>
+                    <option
+                        value="<?php echo e($teacher->id); ?>"
+                        <?php echo e(request('teacher_id') == $teacher->id ? 'selected' : ''); ?>>
 
-            <select class="form-control">
+                        <?php echo e($teacher->teacher_name); ?>
 
-                <option>All Shifts</option>
 
-                <option>Morning</option>
-                <option>Evening</option>
-                <option>Weekend</option>
+                    </option>
+
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
             </select>
 
@@ -174,7 +188,6 @@
                         <th>Batch Name</th>
                         <th>Course</th>
                         <th>Teacher</th>
-                        <th>Shift</th>
                         <th>Students</th>
                         <th>Start Date</th>
                         <th>Status</th>
@@ -186,197 +199,100 @@
 
                 <tbody>
 
-                    <tr>
+                    <?php $__empty_1 = true; $__currentLoopData = $batches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $batch): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
 
-                        <td>MSO-MOR-01</td>
+                        <tr>
 
-                        <td>
-                            MS Office Morning
-                        </td>
+                            <td><?php echo e($batch->batch_code); ?></td>
 
-                        <td>MS Office</td>
+                            <td><?php echo e($batch->batch_name); ?></td>
 
-                        <td>Ali Raza</td>
+                            <td><?php echo e($batch->course?->course_name); ?></td>
 
-                        <td>Morning</td>
+                            <td><?php echo e($batch->teacher?->teacher_name ?? '-'); ?></td>
 
-                        <td>25</td>
+                            <td><?php echo e($batch->students->count()); ?></td>
 
-                        <td>01-Jan-2026</td>
+                            <td><?php echo e(\Carbon\Carbon::parse($batch->start_date)->format('d-M-Y')); ?></td>
 
-                        <td>
+                            <td>
 
-                            <span class="badge-success">
-                                Active
-                            </span>
+                                <?php if($batch->is_active): ?>
 
-                        </td>
+                                    <span class="badge-success">
+                                        Active
+                                    </span>
 
-                        <td>
+                                <?php else: ?>
 
-                            <div class="table-actions">
+                                    <span class="badge-danger">
+                                        Inactive
+                                    </span>
 
-                                <button
-                                class="action-btn view-btn">
+                                <?php endif; ?>
 
-                                    View
+                            </td>
 
-                                </button>
+                            <td>
 
-                                <button
-                                class="action-btn student-btn">
+                                <div class="table-actions">
 
-                                    Students
+                                    <button
+                                        type="button"
+                                        class="action-btn view-btn"
+                                        data-id="<?php echo e($batch->id); ?>">
 
-                                </button>
+                                        View
 
-                                <button
-                                class="action-btn edit-btn">
+                                    </button>
 
-                                    Edit
+                                    <button
+                                        type="button"
+                                        class="action-btn edit-btn"
+                                        data-id="<?php echo e($batch->id); ?>">
 
-                                </button>
+                                        Edit
 
-                                <button
-                                class="action-btn delete-btn">
+                                    </button>
 
-                                    Delete
+                                    <form
+                                        action="<?php echo e(route('admin.batches.destroy',$batch->id)); ?>"
+                                        method="POST"
+                                        class="delete-form"
+                                        style="display:inline;">
 
-                                </button>
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
 
-                            </div>
+                                        <button
+                                            type="submit"
+                                            class="action-btn delete-btn">
 
-                        </td>
+                                            Delete
 
-                    </tr>
+                                        </button>
 
-                    <tr>
+                                    </form>
 
-                        <td>WEB-EVE-01</td>
+                                </div>
 
-                        <td>
-                            Web Designing Evening
-                        </td>
+                            </td>
 
-                        <td>Web Designing</td>
+                        </tr>
 
-                        <td>Hassan Abbas</td>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 
-                        <td>Evening</td>
+                        <tr>
 
-                        <td>18</td>
+                            <td colspan="8" style="text-align:center;padding:25px;">
 
-                        <td>05-Jan-2026</td>
+                                No courses found.
 
-                        <td>
+                            </td>
 
-                            <span class="badge-success">
-                                Active
-                            </span>
+                        </tr>
 
-                        </td>
-
-                        <td>
-
-                            <div class="table-actions">
-
-                                <button
-                                class="action-btn view-btn">
-
-                                    View
-
-                                </button>
-
-                                <button
-                                class="action-btn student-btn">
-
-                                    Students
-
-                                </button>
-
-                                <button
-                                class="action-btn edit-btn">
-
-                                    Edit
-
-                                </button>
-
-                                <button
-                                class="action-btn delete-btn">
-
-                                    Delete
-
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>GD-WKD-01</td>
-
-                        <td>
-                            Graphic Design Weekend
-                        </td>
-
-                        <td>Graphic Designing</td>
-
-                        <td>Murtaza Rizvi</td>
-
-                        <td>Weekend</td>
-
-                        <td>15</td>
-
-                        <td>10-Jan-2026</td>
-
-                        <td>
-
-                            <span class="badge-danger">
-                                Inactive
-                            </span>
-
-                        </td>
-
-                        <td>
-
-                            <div class="table-actions">
-
-                                <button
-                                class="action-btn view-btn">
-
-                                    View
-
-                                </button>
-
-                                <button
-                                class="action-btn student-btn">
-
-                                    Students
-
-                                </button>
-
-                                <button
-                                class="action-btn edit-btn">
-
-                                    Edit
-
-                                </button>
-
-                                <button
-                                class="action-btn delete-btn">
-
-                                    Delete
-
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
+                    <?php endif; ?>
 
                 </tbody>
 
@@ -388,25 +304,42 @@
 
         <div class="pagination">
 
-            <button>
-                Previous
-            </button>
+            <?php if($batches->onFirstPage()): ?>
 
-            <button class="active">
-                1
-            </button>
+                <button disabled>Previous</button>
 
-            <button>
-                2
-            </button>
+            <?php else: ?>
 
-            <button>
-                3
-            </button>
+                <button onclick="window.location='<?php echo e($batches->previousPageUrl()); ?>'">
+                    Previous
+                </button>
 
-            <button>
-                Next
-            </button>
+            <?php endif; ?>
+
+            <?php for($i = 1; $i <= $batches->lastPage(); $i++): ?>
+
+                <button
+                    class="<?php echo e($batches->currentPage() == $i ? 'active' : ''); ?>"
+                    onclick="window.location='<?php echo e($batches->url($i)); ?>'">
+
+                    <?php echo e($i); ?>
+
+
+                </button>
+
+            <?php endfor; ?>
+
+            <?php if($batches->hasMorePages()): ?>
+
+                <button onclick="window.location='<?php echo e($batches->nextPageUrl()); ?>'">
+                    Next
+                </button>
+
+            <?php else: ?>
+
+                <button disabled>Next</button>
+
+            <?php endif; ?>
 
         </div>
 
@@ -414,112 +347,326 @@
 
 </div>
 
+
+<!-- ADD BATCH MODAL -->
 
 <div class="modal" id="batchModal">
 
     <div class="modal-box">
 
-        <div class="modal-header">
+        <form action="<?php echo e(route('admin.batches.store')); ?>" method="POST">
 
-            <h3>Add Batch</h3>
+            <?php echo csrf_field(); ?>
 
-            <button class="close-modal">
-                ×
-            </button>
+            <div class="modal-header">
 
-        </div>
+                <h3>Add Batch</h3>
 
-        <div class="modal-body">
-
-            <div class="form-grid">
-
-                <input
-                type="text"
-                class="form-control"
-                placeholder="Batch Code">
-
-                <input
-                type="text"
-                class="form-control"
-                placeholder="Batch Name">
-
-                <select class="form-control">
-
-                    <option>Select Course</option>
-                    <option>MS Office</option>
-                    <option>Web Designing</option>
-
-                </select>
-
-                <select class="form-control">
-
-                    <option>Select Teacher</option>
-                    <option>Ali Raza</option>
-                    <option>Hassan Abbas</option>
-
-                </select>
-
-                <select class="form-control">
-
-                    <option>Select Shift</option>
-                    <option>Morning</option>
-                    <option>Evening</option>
-                    <option>Weekend</option>
-
-                </select>
-
-                <input
-                type="number"
-                class="form-control"
-                placeholder="Maximum Students">
-
-                <input
-                type="date"
-                class="form-control">
-
-                <input
-                type="date"
-                class="form-control">
+                <button type="button" class="close-modal">
+                    ×
+                </button>
 
             </div>
 
-            <br>
+            <div class="modal-body">
 
-            <select class="form-control">
+                <div class="form-grid">
 
-                <option>Active</option>
-                <option>Inactive</option>
+                    <!-- Batch Code -->
 
-            </select>
+                    <div>
 
-        </div>
+                        <input
+                            type="text"
+                            class="form-control <?php $__errorArgs = ['batch_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="batch_code"
+                            placeholder="Batch Code"
+                            value="<?php echo e(old('batch_code', $batchCode)); ?>"
+                            readonly>
 
-        <div class="modal-footer">
+                        <?php $__errorArgs = ['batch_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
-            <button
-            class="btn btn-dark close-modal">
+                    </div>
 
-                Cancel
+                    <!-- Batch Name -->
 
-            </button>
+                    <div>
 
-            <button
-            class="btn btn-primary"
-            id="saveBatchBtn">
+                        <input
+                            type="text"
+                            class="form-control <?php $__errorArgs = ['batch_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="batch_name"
+                            placeholder="Batch Name"
+                            value="<?php echo e(old('batch_name')); ?>">
 
-                Save Batch
+                        <?php $__errorArgs = ['batch_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
-            </button>
+                    </div>
 
-        </div>
+                    <!-- Course -->
+
+                    <div>
+
+                        <select
+                            class="form-control <?php $__errorArgs = ['course_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="course_id">
+
+                            <option disabled <?php echo e(old('course_id') ? '' : 'selected'); ?>>
+                                Select Course
+                            </option>
+
+                            <?php $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                                <option
+                                    value="<?php echo e($course->id); ?>"
+                                    <?php echo e(old('course_id') == $course->id ? 'selected' : ''); ?>>
+
+                                    <?php echo e($course->course_name); ?>
+
+
+                                </option>
+
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                        </select>
+
+                        <?php $__errorArgs = ['course_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    
+
+                     <div>
+
+                        <select
+                            class="form-control <?php $__errorArgs = ['teacher_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="teacher_id">
+
+                            <option disabled selected>
+                                Select Teacher
+                            </option>
+
+                            <?php $__currentLoopData = $teachers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $teacher): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                                <option
+                                    value="<?php echo e($teacher->id); ?>"
+                                    <?php echo e(old('teacher_id') == $teacher->id ? 'selected' : ''); ?>>
+
+                                    <?php echo e($teacher->teacher_name); ?>
+
+
+                                </option>
+
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                        </select>
+
+                        <?php $__errorArgs = ['teacher_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    <!-- Start Date -->
+
+                    <div>
+
+                        <input
+                            type="date"
+                            class="form-control <?php $__errorArgs = ['start_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="start_date"
+                            value="<?php echo e(old('start_date')); ?>">
+
+                        <?php $__errorArgs = ['start_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    <!-- End Date -->
+
+                    <div>
+
+                        <input
+                            type="date"
+                            class="form-control <?php $__errorArgs = ['end_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="end_date"
+                            value="<?php echo e(old('end_date')); ?>">
+
+                        <?php $__errorArgs = ['end_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    <!-- Status -->
+
+                    <div>
+
+                        <select
+                            class="form-control <?php $__errorArgs = ['is_active'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="is_active">
+
+                            <option value="1"
+                                <?php echo e(old('is_active',1)=='1' ? 'selected' : ''); ?>>
+                                Active
+                            </option>
+
+                            <option value="0"
+                                <?php echo e(old('is_active')=='0' ? 'selected' : ''); ?>>
+                                Inactive
+                            </option>
+
+                        </select>
+
+                        <?php $__errorArgs = ['is_active'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-dark close-modal">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Save Batch
+
+                </button>
+
+            </div>
+
+        </form>
 
     </div>
 
 </div>
 
+
+<!-- =========================
+VIEW COURSE MODAL
+========================= -->
+
 <div class="modal" id="viewBatchModal">
 
-    <div class="modal-box">
+    <div class="modal-box" style="max-width:700px;">
 
         <div class="modal-header">
 
@@ -533,42 +680,48 @@
 
         <div class="modal-body">
 
-            <div class="details-grid">
+            <div class="form-grid">
 
                 <div>
                     <strong>Batch Code</strong>
-                    <p>MSO-MOR-01</p>
+                    <p id="view_batch_code"></p>
                 </div>
 
                 <div>
                     <strong>Batch Name</strong>
-                    <p>MS Office Morning</p>
+                    <p id="view_batch_name"></p>
                 </div>
 
                 <div>
                     <strong>Course</strong>
-                    <p>MS Office</p>
+                    <p id="view_course_name"></p>
                 </div>
 
                 <div>
                     <strong>Teacher</strong>
-                    <p>Ali Raza</p>
+                    <p id="view_teacher_name"></p>
                 </div>
 
                 <div>
-                    <strong>Shift</strong>
-                    <p>Morning</p>
+                    <strong>Start Date</strong>
+                    <p id="view_start_date"></p>
                 </div>
 
                 <div>
-                    <strong>Students</strong>
-                    <p>25</p>
+                    <strong>End Date</strong>
+                    <p id="view_end_date"></p>
+                </div>
+
+                <div>
+                    <strong>Total Students</strong>
+                    <p id="view_students"></p>
                 </div>
 
                 <div>
                     <strong>Status</strong>
-                    <p>Active</p>
+                    <p id="view_status"></p>
                 </div>
+
 
             </div>
 
@@ -578,8 +731,377 @@
 
 </div>
 
+<!-- =========================
+EDIT BATCH MODAL
+========================= -->
+
+<div class="modal" id="editBatchModal">
+
+    <div class="modal-box">
+
+        <form id="editBatchForm" action="" method="POST">
+
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
+
+            <div class="modal-header">
+
+                <h3>Edit Batch</h3>
+
+                <button type="button" class="close-modal">
+                    ×
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="form-grid">
+
+                    <!-- Batch Code -->
+
+                    <div>
+
+                        <input
+                            type="text"
+                            id="edit_batch_code"
+                            class="form-control <?php $__errorArgs = ['batch_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            placeholder="Batch Code"
+                            name="batch_code"
+                            value="<?php echo e(old('batch_code')); ?>">
+
+                        <?php $__errorArgs = ['batch_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    <!-- Batch Name -->
+
+                    <div>
+
+                        <input
+                            type="text"
+                            id="edit_batch_name"
+                            class="form-control <?php $__errorArgs = ['batch_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            placeholder="Batch Name"
+                            name="batch_name"
+                            value="<?php echo e(old('batch_name')); ?>">
+
+                        <?php $__errorArgs = ['batch_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    <!-- Course -->
+
+                    <div>
+
+                        <select
+                            id="edit_course_id"
+                            class="form-control <?php $__errorArgs = ['course_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="course_id">
+
+                            <option disabled selected>
+                                Select Course
+                            </option>
+
+                            <?php $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                                <option value="<?php echo e($course->id); ?>">
+
+                                    <?php echo e($course->course_name); ?>
+
+
+                                </option>
+
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                        </select>
+
+                        <?php $__errorArgs = ['course_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    <!-- Teacher -->
+
+                    <div>
+
+                        <select
+                            id="edit_teacher_id"
+                            class="form-control <?php $__errorArgs = ['teacher_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="teacher_id">
+
+                            <option disabled selected>
+                                Select Teacher
+                            </option>
+
+                            <?php $__currentLoopData = $teachers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $teacher): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                                <option value="<?php echo e($teacher->id); ?>">
+
+                                    <?php echo e($teacher->teacher_name); ?>
+
+
+                                </option>
+
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                        </select>
+
+                        <?php $__errorArgs = ['teacher_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    <!-- Start Date -->
+
+                    <div>
+
+                        <input
+                            type="date"
+                            id="edit_start_date"
+                            class="form-control <?php $__errorArgs = ['start_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="start_date"
+                            value="<?php echo e(old('start_date')); ?>">
+
+                        <?php $__errorArgs = ['start_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                    <!-- End Date -->
+
+                    <div>
+
+                        <input
+                            type="date"
+                            id="edit_end_date"
+                            class="form-control <?php $__errorArgs = ['end_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                            name="end_date"
+                            value="<?php echo e(old('end_date')); ?>">
+
+                        <?php $__errorArgs = ['end_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                            <small class="text-danger"><?php echo e($message); ?></small>
+                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <!-- Status -->
+
+                <select
+                    id="edit_is_active"
+                    class="form-control <?php $__errorArgs = ['is_active'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>"
+                    name="is_active">
+
+                    <option value="1">
+                        Active
+                    </option>
+
+                    <option value="0">
+                        Inactive
+                    </option>
+
+                </select>
+
+                <?php $__errorArgs = ['is_active'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <small class="text-danger"><?php echo e($message); ?></small>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-dark close-modal">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Update Batch
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
 
 
 </body>
+<?php if(session('success')): ?>
+
+<script>
+
+Swal.fire({
+
+    icon:'success',
+
+    title:'Success',
+
+    text:'<?php echo e(session('success')); ?>',
+
+    timer:2500,
+
+    showConfirmButton:false
+
+});
+
+</script>
+
+<?php endif; ?>
+
+<?php if($errors->any()): ?>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function(){
+
+    $('#batchModal').fadeIn();
+
+});
+
+</script>
+
+<?php endif; ?>
+
+<?php if(session('success')): ?>
+
+<script>
+
+Swal.fire({
+
+    icon: 'success',
+
+    title: 'Success',
+
+    text: '<?php echo e(session('success')); ?>',
+
+    timer: 2500,
+
+    showConfirmButton: false
+
+});
+
+</script>
+
+<?php endif; ?>
 </html>
 <?php /**PATH C:\xampp\htdocs\mtech_exam\resources\views/admin/batches.blade.php ENDPATH**/ ?>
