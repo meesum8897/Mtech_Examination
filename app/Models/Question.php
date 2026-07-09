@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+
 class Question extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
 
-        'course_id',
-        'question_category_id',
-        'question_code',
         'question',
         'question_type',
         'option_a',
@@ -21,12 +19,9 @@ class Question extends Model
         'option_c',
         'option_d',
         'correct_answer',
-        'marks',
-        'difficulty_level',
-        'explanation',
         'is_active',
         'created_by',
-        'updated_by'
+        'updated_by',
 
     ];
 
@@ -49,13 +44,10 @@ class Question extends Model
     public function exams()
     {
         return $this->belongsToMany(
-
             Exam::class,
-
             'exam_questions'
-
         )->withPivot('marks')
-         ->withTimestamps();
+        ->withTimestamps();
     }
 
     public function generatedQuestions()
@@ -68,4 +60,14 @@ class Question extends Model
         return $this->hasMany(QuestionOption::class)
                     ->orderBy('display_order');
     }
+    public function question()
+    {
+        return $this->belongsTo(Question::class);
+    }
+    
+
+    /* public function subject()
+    {
+        return $this->belongsTo(Subject::class);
+    } */
 }

@@ -50,9 +50,7 @@
         <a href="<?php echo e(route('admin.batches.index')); ?>">Batches</a>
     </li>
 
-    <li class="<?php echo e(request()->routeIs('admin.question-categories.*') || request()->routeIs('admin.questions.*') ? 'active' : ''); ?>">
-        <a href="<?php echo e(route('admin.questions.index')); ?>">Question Bank</a>
-    </li>
+
 
     <li class="<?php echo e(request()->routeIs('admin.exams.*') ? 'active' : ''); ?>">
         <a href="<?php echo e(route('admin.exams.index')); ?>">Exams</a>
@@ -61,6 +59,7 @@
     <li class="<?php echo e(request()->routeIs('admin.assign-exams.*') ? 'active' : ''); ?>">
         <a href="<?php echo e(route('admin.assign-exams.index')); ?>">Assign Exams</a>
     </li>
+    
 
     <li class="<?php echo e(request()->routeIs('admin.results.*') ? 'active' : ''); ?>">
         <a href="<?php echo e(route('admin.results.index')); ?>">Results</a>

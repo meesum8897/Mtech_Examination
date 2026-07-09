@@ -12,40 +12,38 @@ return new class extends Migration
 
             $table->id();
 
+            // Course
             $table->foreignId('course_id')
                   ->constrained()
                   ->cascadeOnDelete();
 
+            // Exam Information
             $table->string('exam_code',20)->unique();
 
             $table->string('exam_title');
 
-            $table->enum('exam_type',[
-                'Practice',
-                'Quiz',
-                'Assignment',
-                'Mid',
-                'Final'
-            ]);
-
-            $table->text('description')->nullable();
-
+            // Duration (Minutes)
             $table->unsignedInteger('duration');
 
-            $table->decimal('total_marks',8,2);
-
+            // Passing Marks
             $table->decimal('passing_marks',8,2);
 
-            $table->unsignedInteger('question_limit');
+            // Schedule
+            $table->dateTime('starts_at');
 
-            $table->boolean('random_questions')->default(false);
+            $table->dateTime('ends_at');
 
-            $table->boolean('negative_marking')->default(false);
+            // Status
+            $table->enum('status',[
+                'Draft',
+                'Published',
+                'Cancelled'
+            ])->default('Draft');
 
-            $table->decimal('negative_marks',5,2)->default(0);
-
+            // Active / Inactive
             $table->boolean('is_active')->default(true);
 
+            // Audit
             $table->foreignId('created_by')
                   ->nullable()
                   ->constrained('users')
@@ -62,7 +60,7 @@ return new class extends Migration
 
         });
     }
-
+    
     public function down(): void
     {
         Schema::dropIfExists('exams');

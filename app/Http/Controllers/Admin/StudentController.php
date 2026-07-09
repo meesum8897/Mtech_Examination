@@ -133,29 +133,12 @@ public function index(Request $request)
 
         ]);
 
-        // 👇 Add this here
-        if ($request->is_active) {
-
-            $studentCode = $this->generateStudentCode();
-
-            $rollNo = $this->generateRollNo();
-
-        } else {
-
-            $studentCode = null;
-
-            $rollNo = null;
-
-        }
-
-        // Password
-        $generatedPassword = Str::upper(Str::random(8));
 
         Student::create([
 
             'batch_id'          => $request->batch_id,
-            'student_code' => $this->generateStudentCode(),
-            'roll_no'           => $rollNo,
+            'student_code'      => $request->student_code,
+            'roll_no'           => $request->roll_no,
             'first_name'        => $request->first_name,
             'last_name'         => $request->last_name,
             'father_name'       => $request->father_name,
@@ -167,7 +150,7 @@ public function index(Request $request)
             'guardian_phone'    => $request->guardian_phone,
             'address'           => $request->address,
             'admission_date'    => $request->admission_date,
-            'password'          => Hash::make($generatedPassword),
+            'password'          => $request->password,
             'is_active'         => $request->is_active,
             'created_by'        => 1
 

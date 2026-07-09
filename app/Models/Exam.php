@@ -5,27 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Exam extends Model
-{
-    use SoftDeletes;
+    class Exam extends Model
+    {
+        use SoftDeletes;
 
-    protected $fillable = [
+        protected $fillable = [
 
         'course_id',
         'exam_code',
         'exam_title',
-        'exam_type',
-        'description',
         'duration',
         'total_marks',
         'passing_marks',
-        'question_limit',
-        'random_questions',
-        'negative_marking',
-        'negative_marks',
+        'starts_at',
+        'ends_at',
+        'status',
         'is_active',
         'created_by',
-        'updated_by'
+        'updated_by',
 
     ];
 
@@ -43,13 +40,10 @@ class Exam extends Model
     public function questions()
     {
         return $this->belongsToMany(
-
             Question::class,
-
             'exam_questions'
-
         )->withPivot('marks')
-         ->withTimestamps();
+        ->withTimestamps();
     }
 
     public function rules()
@@ -61,4 +55,5 @@ class Exam extends Model
     {
         return $this->hasMany(ExamAssignment::class);
     }
+
 }

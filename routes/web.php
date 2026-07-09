@@ -16,6 +16,11 @@ use App\Http\Controllers\Admin\ExamController;
 use App\Http\Controllers\Admin\AssignExamController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ExamQuestionController;
+use App\Http\Controllers\Student\AuthController as StudentAuthController;
+use App\Http\Controllers\Student\StudentExamController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -37,91 +42,167 @@ Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/login', [AuthController::class, 'showLogin'])
+        ->name('login');
+
+    Route::post('/login', [AuthController::class, 'login'])
+        ->name('login.submit');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Protected Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware('admin.auth')->group(function () {
+
         /*
         |--------------------------------------------------------------------------
-        | Authentication
+        | Dashboard
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/login', [AuthController::class, 'showLogin'])
-            ->name('login');
-
-        Route::post('/login', [AuthController::class, 'login'])
-            ->name('login.submit');
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
 
         /*
         |--------------------------------------------------------------------------
-        | Protected Routes
+        | Logout
         |--------------------------------------------------------------------------
         */
 
-        Route::middleware('admin.auth')->group(function () {
+        Route::get('/logout', [AuthController::class, 'logout'])
+            ->name('logout');
 
-            /*
-            |--------------------------------------------------------------------------
-            | Dashboard
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | Masters
+        |--------------------------------------------------------------------------
+        */
 
-            Route::get('/dashboard', [DashboardController::class, 'index'])
-                ->name('dashboard');
+        Route::resource('courses', CourseController::class);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Logout
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/logout', [AuthController::class, 'logout'])
-                ->name('logout');
-
-            /*
-            |--------------------------------------------------------------------------
-            | Masters
-            |--------------------------------------------------------------------------
-            */
-
-            Route::resource('courses', CourseController::class);
-
-            Route::get('courses/{course}/view', [CourseController::class, 'show'])->name('courses.view');
+        Route::get('courses/{course}/view', [CourseController::class, 'show'])->name('courses.view');
 
 /*             Route::get('courses/{id}/edit-data', [CourseController::class, 'editData'])->name('courses.editData');
- */
-            Route::resource('courses', CourseController::class);
-            Route::get('courses/{course}/view', [CourseController::class, 'show']);
+*/
+        Route::resource('courses', CourseController::class);
+        Route::get('courses/{course}/view', [CourseController::class, 'show']);
 
-            Route::resource('batches', BatchController::class);
+        Route::resource('batches', BatchController::class);
 
-            Route::resource('students', StudentController::class);
-            Route::get('/admin/students/next-roll/{batch}',[StudentController::class, 'nextRoll'])->name('admin.students.nextRoll');
+        Route::resource('students', StudentController::class);
+        Route::get('/admin/students/next-roll/{batch}',[StudentController::class, 'nextRoll'])->name('admin.students.nextRoll');
 
-            Route::resource('teachers', TeacherController::class);
-            
+        Route::resource('teachers', TeacherController::class);
+        
+        Route::resource('question-categories', QuestionCategoryController::class);
 
-            Route::resource('question-categories', QuestionCategoryController::class);
+        Route::resource('questions', QuestionController::class);
 
-            Route::resource('questions', QuestionController::class);
+        Route::get('exam/{exam}/questions',[ExamQuestionController::class, 'index'])->name('exam.questions');
+        Route::post('exam/{exam}/questions',[ExamQuestionController::class, 'store'])->name('exam.questions.store');
+        Route::delete('exam/{exam}/questions/{question}',[ExamQuestionController::class, 'destroy'])->name('exam.questions.destroy');
 
-            /*
-            |--------------------------------------------------------------------------
-            | Examination
-            |--------------------------------------------------------------------------
-            */
 
-            Route::resource('exams', ExamController::class);
+        /*
+        |--------------------------------------------------------------------------
+        | Examination
+        |--------------------------------------------------------------------------
+        */
 
-            Route::resource('assign-exams', AssignExamController::class);
+        Route::resource('exams', ExamController::class);
 
-            Route::resource('results', ResultController::class);
+        Route::resource('assign-exams', AssignExamController::class);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Settings
-            |--------------------------------------------------------------------------
-            */
+        Route::prefix('results')->name('results.')->group(function () {
 
-            Route::resource('settings', SettingController::class);
+            Route::get('/', [ResultController::class, 'index'])
+                ->name('index');
+
+            Route::get('/batch/{batch}/exams',
+                [ResultController::class, 'getExams'])
+                ->name('getExams');
+
+            Route::get('/batch/{batch}/exam/{exam}',
+                [ResultController::class, 'getResults'])
+                ->name('getResults');
 
         });
 
+        Route::get('assign-exams/course/{course}/batches',[AssignExamController::class, 'getBatches'])->name('assign-exams.batches');
+        Route::get('assign-exams/course/{course}/exams',[AssignExamController::class, 'getExams'])->name('assign-exams.exams');
+        Route::get('assign-exams/summary/{batch}/{exam}',[AssignExamController::class, 'getSummary'])->name('assign-exams.summary');
+        Route::resource('assign-exams', AssignExamController::class);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Settings
+        |--------------------------------------------------------------------------
+        */
+
+        Route::resource('settings', SettingController::class);
+
     });
+
+});
+
+
+/* SUTDENT ROUTES */
+
+/*
+|--------------------------------------------------------------------------
+| Default Route
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', function () {
+
+    return redirect()->route('student.login');
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| Student Panel
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('student')->name('student.')->group(function () {
+
+    Route::get('/login', [StudentAuthController::class, 'showLogin'])
+        ->name('login');
+
+    Route::post('/login', [StudentAuthController::class, 'login'])
+        ->name('login.submit');
+
+    Route::middleware('student.auth')->group(function () {
+
+        Route::get('/rules', [StudentExamController::class, 'rules'])
+            ->name('rules');
+
+        Route::post('/start-exam', [StudentExamController::class, 'startExam'])
+            ->name('start.exam');
+
+        Route::get('/exam/{exam}', [StudentExamController::class, 'exam'])
+            ->name('exam');
+
+        Route::post('/submit-exam/{exam}', [StudentExamController::class, 'submitExam'])
+            ->name('submit.exam');
+
+        Route::get('/result/{exam}', [StudentExamController::class, 'result'])
+            ->name('result');
+
+        Route::get('/logout', [StudentAuthController::class, 'logout'])
+            ->name('logout');
+
+    });
+
+});
+

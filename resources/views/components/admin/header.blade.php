@@ -50,9 +50,9 @@
         <a href="{{ route('admin.batches.index') }}">Batches</a>
     </li>
 
-    <li class="{{ request()->routeIs('admin.question-categories.*') || request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+{{--     <li class="{{ request()->routeIs('admin.question-categories.*') || request()->routeIs('admin.questions.*') ? 'active' : '' }}">
         <a href="{{ route('admin.questions.index') }}">Question Bank</a>
-    </li>
+    </li> --}}
 
     <li class="{{ request()->routeIs('admin.exams.*') ? 'active' : '' }}">
         <a href="{{ route('admin.exams.index') }}">Exams</a>
@@ -61,6 +61,7 @@
     <li class="{{ request()->routeIs('admin.assign-exams.*') ? 'active' : '' }}">
         <a href="{{ route('admin.assign-exams.index') }}">Assign Exams</a>
     </li>
+    
 
     <li class="{{ request()->routeIs('admin.results.*') ? 'active' : '' }}">
         <a href="{{ route('admin.results.index') }}">Results</a>

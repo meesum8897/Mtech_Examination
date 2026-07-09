@@ -10,7 +10,6 @@ class Course extends Model
     use SoftDeletes;
 
     protected $fillable = [
-
         'course_code',
         'course_name',
         'duration',
@@ -18,8 +17,7 @@ class Course extends Model
         'description',
         'is_active',
         'created_by',
-        'updated_by'
-
+        'updated_by',
     ];
 
     /*

@@ -18,8 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
        $middleware->alias([
             'admin.auth' => \App\Http\Middleware\AdminAuthenticate::class,
         ]);
-        
+    })
+    ->withMiddleware(function ($middleware) {
 
+    $middleware->alias([
+
+        'student.auth' => \App\Http\Middleware\StudentAuth::class,
+        ]);
     })
 
     ->withExceptions(function (Exceptions $exceptions): void {

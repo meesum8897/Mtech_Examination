@@ -8,33 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('exam_assignments', function (Blueprint $table) {
+        Schema::create('exam_assignments', function (Blueprint $table) 
+        {
 
             $table->id();
 
             $table->foreignId('exam_id')
-                ->constrained('exams')
+                ->constrained()
                 ->cascadeOnDelete();
 
             $table->foreignId('batch_id')
-                ->constrained('batches')
+                ->constrained()
                 ->cascadeOnDelete();
-
-            $table->foreignId('assigned_by')
-                ->constrained('users');
 
             $table->dateTime('start_datetime');
 
             $table->dateTime('end_datetime');
-
-            // Override exam settings if needed
-            $table->unsignedInteger('duration')->nullable();
-
-            $table->unsignedTinyInteger('attempts')->default(1);
-
-            $table->boolean('shuffle_questions')->default(false);
-
-            $table->boolean('shuffle_options')->default(false);
 
             $table->boolean('show_result')->default(false);
 
@@ -46,9 +35,27 @@ return new class extends Migration
                 'Cancelled'
             ])->default('Draft');
 
+            $table->boolean('is_active')->default(true);
+
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->foreignId('updated_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
             $table->timestamps();
 
             $table->softDeletes();
+
+            $table->unique([
+                'exam_id',
+                'batch_id'
+            ]);
+
         });
     }
 

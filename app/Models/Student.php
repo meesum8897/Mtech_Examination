@@ -76,11 +76,13 @@ class Student extends Authenticatable
     {
         return $this->belongsTo(Batch::class);
     }
+    
 
     public function examAssignments()
     {
         return $this->hasMany(ExamAssignmentStudent::class);
     }
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -92,4 +94,5 @@ class Student extends Authenticatable
     {
         return $query->where('is_active', true);
     }
+    
 }

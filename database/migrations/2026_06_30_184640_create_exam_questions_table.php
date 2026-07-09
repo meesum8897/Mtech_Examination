@@ -9,26 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('exam_questions', function (Blueprint $table) {
-
-            $table->id();
-
-            $table->foreignId('exam_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
-
-            $table->foreignId('question_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
-
-            $table->decimal('marks',5,2)->default(1);
-
-            $table->timestamps();
-
-            $table->unique([
-                'exam_id',
-                'question_id'
-            ]);
-
+        $table->id();
+        $table->foreignId('exam_id')
+            ->constrained()
+            ->cascadeOnDelete();
+        $table->foreignId('question_id')
+            ->constrained()
+            ->cascadeOnDelete();
+        $table->decimal('marks',5,2)->default(1);
+        $table->boolean('is_active')->default(true);
+        $table->timestamps();
         });
     }
 

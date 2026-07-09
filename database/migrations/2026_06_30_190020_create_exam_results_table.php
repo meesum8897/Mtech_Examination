@@ -6,33 +6,110 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('exam_results', function (Blueprint $table) {
 
             $table->id();
 
-            $table->foreignId('attempt_id')
-                ->constrained('exam_attempts')
+            /*
+            |--------------------------------------------------------------------------
+            | Relationships
+            |--------------------------------------------------------------------------
+            */
+
+            $table->foreignId('student_id')
+                ->constrained('students')
                 ->cascadeOnDelete();
 
-            $table->decimal('total_marks',8,2);
+            $table->foreignId('exam_id')
+                ->constrained('exams')
+                ->cascadeOnDelete();
 
-            $table->decimal('obtained_marks',8,2);
+            /*
+            |--------------------------------------------------------------------------
+            | Result
+            |--------------------------------------------------------------------------
+            */
 
-            $table->decimal('percentage',5,2);
+            $table->unsignedInteger('total_questions');
 
-            $table->string('grade',10)->nullable();
+            $table->unsignedInteger('correct_answers')->default(0);
 
-            $table->boolean('is_pass')->default(false);
+            $table->unsignedInteger('wrong_answers')->default(0);
 
-            $table->unsignedInteger('rank')->nullable();
+            $table->unsignedInteger('not_attempted')->default(0);
+
+            $table->decimal('total_marks', 8, 2);
+
+            $table->decimal('obtained_marks', 8, 2)->default(0);
+
+            $table->decimal('percentage', 5, 2)->default(0);
+
+            $table->string('grade', 5)->nullable();
+
+            $table->enum('result_status', [
+                'Pass',
+                'Fail'
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Exam Timing
+            |--------------------------------------------------------------------------
+            */
+
+            $table->dateTime('started_at')->nullable();
+
+            $table->dateTime('submitted_at')->nullable();
+
+            $table->unsignedInteger('time_taken')->nullable(); // Minutes
+
+            /*
+            |--------------------------------------------------------------------------
+            | Status
+            |--------------------------------------------------------------------------
+            */
+
+            $table->boolean('is_active')->default(true);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Audit
+            |--------------------------------------------------------------------------
+            */
+
+            $table->foreignId('created_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->foreignId('updated_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
 
             $table->timestamps();
+
+            $table->softDeletes();
+
+            /*
+            |--------------------------------------------------------------------------
+            | One Result Per Student Per Exam
+            |--------------------------------------------------------------------------
+            */
+
+            $table->unique(['student_id', 'exam_id']);
 
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('exam_results');

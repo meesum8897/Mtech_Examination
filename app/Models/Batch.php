@@ -40,15 +40,19 @@ class Batch extends Model
     {
         return $this->hasMany(Student::class);
     }
-
-    public function assignments()
-    {
-        return $this->hasMany(ExamAssignment::class);
-    }
-
-
+    
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
+    }
+    
+    public function assignExam()
+    {
+        return $this->hasOne(ExamAssignment::class)
+        ->where('is_active', true);
+    }
+    public function assignments()
+    {
+        return $this->hasMany(ExamAssignment::class);
     }
 }
