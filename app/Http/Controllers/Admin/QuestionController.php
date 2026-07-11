@@ -30,7 +30,6 @@ class QuestionController extends Controller
 
     public function store(Request $request, Exam $exam)
     {
-        dd($exam->id);
         $request->validate([
             'question'        => 'required|string',
             'question_type'   => 'required|in:MCQ,TrueFalse',

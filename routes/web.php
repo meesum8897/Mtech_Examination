@@ -110,6 +110,8 @@ Route::prefix('admin')
         Route::post('exam/{exam}/questions',[ExamQuestionController::class, 'store'])->name('exam.questions.store');
         Route::delete('exam/{exam}/questions/{question}',[ExamQuestionController::class, 'destroy'])->name('exam.questions.destroy');
 
+        
+
 
         /*
         |--------------------------------------------------------------------------
@@ -174,7 +176,13 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('student')->name('student.')->group(function () {
+Route::prefix('student')
+    ->name('student.')
+    ->group(function () {
+
+    // ===========================
+    // Authentication
+    // ===========================
 
     Route::get('/login', [StudentAuthController::class, 'showLogin'])
         ->name('login');
@@ -182,21 +190,31 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::post('/login', [StudentAuthController::class, 'login'])
         ->name('login.submit');
 
+    // ===========================
+    // Protected Routes
+    // ===========================
+
     Route::middleware('student.auth')->group(function () {
 
         Route::get('/rules', [StudentExamController::class, 'rules'])
             ->name('rules');
 
-        Route::post('/start-exam', [StudentExamController::class, 'startExam'])
-            ->name('start.exam');
+        Route::post('/exam/start', [StudentExamController::class, 'startExam'])
+            ->name('exam.start');
 
-        Route::get('/exam/{exam}', [StudentExamController::class, 'exam'])
+        Route::get('/exam', [StudentExamController::class, 'exam'])
             ->name('exam');
 
-        Route::post('/submit-exam/{exam}', [StudentExamController::class, 'submitExam'])
-            ->name('submit.exam');
+        Route::post('/exam/save-answer', [StudentExamController::class, 'saveAnswer'])
+            ->name('exam.save-answer');
 
-        Route::get('/result/{exam}', [StudentExamController::class, 'result'])
+        Route::post('/exam/navigate', [StudentExamController::class, 'navigateQuestion'])
+            ->name('exam.navigate');
+
+        Route::post('/exam/finish', [StudentExamController::class, 'finishExam'])
+            ->name('exam.finish');
+
+        Route::get('/result', [StudentExamController::class, 'result'])
             ->name('result');
 
         Route::get('/logout', [StudentAuthController::class, 'logout'])
@@ -205,4 +223,3 @@ Route::prefix('student')->name('student.')->group(function () {
     });
 
 });
-

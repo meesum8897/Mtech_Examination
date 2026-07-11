@@ -98,23 +98,14 @@ class AssignExamController extends Controller
         try {
 
             $assignment = ExamAssignment::create([
-
                 'exam_id'        => $request->exam_id,
-
                 'batch_id'       => $request->batch_id,
-
                 'start_datetime' => $request->start_datetime,
-
                 'end_datetime'   => $request->end_datetime,
-
                 'show_result'    => $request->show_result ?? false,
-
                 'status'         => $request->status,
-
                 'is_active'      => true,
-
                 'created_by'     => 1,
-
             ]);
 
             $students = Student::where(
@@ -125,13 +116,9 @@ class AssignExamController extends Controller
             foreach ($students as $student) {
 
                 ExamAssignmentStudent::create([
-
                     'assignment_id' => $assignment->id,
-
                     'student_id'    => $student->id,
-
                     'status'        => 'Pending',
-
                 ]);
 
             }
@@ -200,13 +187,9 @@ class AssignExamController extends Controller
                     ->findOrFail($examId);
 
         return response()->json([
-
             'students' => $studentCount,
-
             'duration' => $exam->duration,
-
             'passing_marks' => $exam->passing_marks,
-
             'total_marks' => $exam->questions->sum(function ($question) {
                 return $question->pivot->marks;
             }),

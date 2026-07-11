@@ -65,11 +65,19 @@ class AuthController extends Controller
     public function logout()
     {
         session()->forget([
-            'student_id',
-            'student_name',
-            'roll_no',
-        ]);
+        'student_id',
+        'student_name',
+        'roll_no',
+        'assignment_id',
+        'exam_id',
+    ]);
 
-        return redirect()->route('student.auth.login');
+    session()->invalidate();
+
+    session()->regenerateToken();
+
+    return redirect()
+        ->route('student.login')
+        ->with('success', 'You have been logged out successfully.');
     }
 }

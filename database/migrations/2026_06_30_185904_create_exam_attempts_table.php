@@ -12,25 +12,46 @@ return new class extends Migration
 
             $table->id();
 
-            $table->foreignId('assignment_student_id')
-                ->constrained('exam_assignment_students')
+            // Assigned Exam
+            $table->foreignId('assignment_id')
+                ->constrained('exam_assignments')
                 ->cascadeOnDelete();
 
-            $table->unsignedTinyInteger('attempt_no');
+            // Student
+            $table->foreignId('student_id')
+                ->constrained('students')
+                ->cascadeOnDelete();
 
-            $table->dateTime('started_at')->nullable();
+            // Exam Start
+            $table->dateTime('started_at');
 
-            $table->dateTime('submitted_at')->nullable();
+            // Exam End
+            $table->dateTime('ended_at')->nullable();
 
-            $table->unsignedInteger('time_taken')->nullable();
+            // Remaining Seconds
+            $table->unsignedInteger('remaining_seconds');
+            
+            $table->integer('current_question')->default(1);
 
+            // Marks Obtained
+            $table->decimal('obtained_marks',8,2)->default(0);
+
+            // Status
             $table->enum('status',[
-                'In Progress',
-                'Submitted',
-                'Auto Submitted'
-            ])->default('In Progress');
+                'Started',
+                'Completed',
+                'Expired'
+            ])->default('Started');
 
             $table->timestamps();
+
+            $table->softDeletes();
+
+            // One Attempt Per Student Per Assignment
+            $table->unique([
+                'assignment_id',
+                'student_id'
+            ]);
 
         });
     }

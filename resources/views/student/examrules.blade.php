@@ -19,30 +19,6 @@
 
 <div class="overlay"></div>
 
-    @if($message)
-
-<div class="alert alert-danger">
-
-    {{ $message }}
-
-</div>
-
-<div class="text-center mt-3">
-
-    <a href="{{ route('student.logout') }}" class="btn btn-danger">
-
-        Logout
-
-    </a>
-
-</div>
-
-@else
-
-    {{-- Existing Rules Content Here --}}
-
-@endif
-
 <!-- Header -->
 
 <div class="top-header">
@@ -85,13 +61,7 @@
 
     @else
 
-        {{-- Existing Rules Screen Here --}}
-
-    @endif
-
-</div>
-
-<div class="login-wrapper">
+        <div class="login-wrapper">
 
     <div class="instruction-box">
 
@@ -140,12 +110,12 @@
 
                 <div>
                     <strong>Duration</strong><br>
-                    {{ $student->batch->assignExam->exam->duration ?? 'N/A'}} Minutes
+                    {{ $assignment?->exam?->duration ?? 'N/A' }} Minutes
                 </div>
 
                 <div>
                     <strong>Passing Marks</strong><br>
-                    {{ $student->batch->assignExam->exam->passing_marks ?? 'N/A'}}
+                    {{ $assignment?->exam?->passing_marks ?? 'N/A' }}
                 </div
 
             </div>
@@ -202,7 +172,7 @@
 
         <!-- Footer -->
 
-        <form action="{{ route('student.start.exam') }}" method="POST">
+        <form action="{{ route('student.exam.start') }}" method="POST">
 
             @csrf
 
@@ -216,18 +186,8 @@
 
                 </label>
 
-                <button
-
-                    type="submit"
-
-                    id="startBtn"
-
-                    class="btn btn-primary"
-
-                    disabled>
-
+                <button type="submit" id="startBtn" class="btn btn-primary" disabled>
                     Start Paper
-
                 </button>
 
             </div>
@@ -235,6 +195,10 @@
         </form>
 
     </div>
+
+</div>
+
+    @endif
 
 </div>
 
