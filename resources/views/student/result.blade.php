@@ -27,27 +27,32 @@
 
     </div>
 
-<!-- CENTER -->
+    <!-- CENTER -->
 
     <div class="flex justify-center items-center">
-
-        
 
     </div>
 
     <!-- RIGHT -->
 
+    @php
+        $initials = strtoupper(
+            substr($student->first_name,0,1).
+            substr($student->last_name,0,1)
+        );
+    @endphp
+
     <div class="exam-user">
 
         <div>
 
-            <h4>Student</h4>
-            <small>ST2026-001</small>
+            <h4>{{ $student->first_name }} {{ $student->last_name }}</h4>
+            <small>{{ $student->student_code }}</small>
 
         </div>
 
         <div class="profile">
-            M
+            {{ $initials }}
         </div>
 
     </div>
@@ -57,8 +62,6 @@
 <!-- RESULT CONTAINER -->
 
 <div class="result-container">
-
-    <!-- RESULT CARD -->
 
     <div class="result-card">
 
@@ -76,106 +79,122 @@
 
             </div>
 
-            <div class="result-badge pass">
+            <div class="result-badge {{ strtolower($result->result_status) == 'pass' ? 'pass' : 'fail' }}">
 
-                PASS
+                {{ strtoupper($result->result_status) }}
 
             </div>
 
         </div>
 
-        <!-- RESULT TABLE -->
+        <!-- TABLE -->
 
         <div class="result-table-wrapper">
 
             <table class="result-table">
 
                 <tr>
-                    <th>Student ID</th>
-                    <td>ST2026-001</td>
+                    <th>Student Roll Number</th>
+                    <td>Student{{ $student->roll_no }}</td>
 
                     <th>Batch Code</th>
-                    <td>MS-OFFICE-23A</td>
+                    <td>{{ $student->batch->batch_code }}</td>
                 </tr>
 
                 <tr>
                     <th>Full Name</th>
-                    <td>Meesum Ali</td>
+                    <td>{{ $student->first_name }} {{ $student->last_name }}</td>
 
                     <th>Father Name</th>
-                    <td>Syed Ali Raza</td>
+                    <td>{{ $student->father_name }}</td>
                 </tr>
 
                 <tr>
                     <th>Exam Date</th>
-                    <td>02 May 2026</td>
+                    <td>{{ \Carbon\Carbon::parse($result->submitted_at)->format('d M Y') }}</td>
 
                     <th>Exam Name</th>
-                    <td>MS Office Final Exam</td>
+                    <td>{{ $exam->exam_title }}</td>
                 </tr>
 
                 <tr>
                     <th>Total Questions</th>
-                    <td>50</td>
+                    <td>{{ $result->total_questions }}</td>
 
                     <th>Attempted Questions</th>
-                    <td>48</td>
+                    <td>{{ $result->correct_answers + $result->wrong_answers }}</td>
                 </tr>
 
                 <tr>
-                    <th>Right Questions</th>
-                    <td>42</td>
+                    <th>Correct Questions</th>
+                    <td>{{ $result->correct_answers }}</td>
 
                     <th>Wrong Questions</th>
-                    <td>6</td>
+                    <td>{{ $result->wrong_answers }}</td>
+                </tr>
+
+                <tr>
+                    <th>Not Attempted</th>
+                    <td>{{ $result->not_attempted }}</td>
+
+                    <th>Time Taken</th>
+                    <td>{{ $result->time_taken }} Minutes</td>
                 </tr>
 
                 <tr>
                     <th>Total Marks</th>
-                    <td>50</td>
+                    <td>{{ $result->total_marks }}</td>
 
                     <th>Marks Obtained</th>
-                    <td>42</td>
+                    <td>{{ $result->obtained_marks }}</td>
                 </tr>
 
                 <tr>
                     <th>Percentage</th>
-                    <td>84%</td>
+                    <td>{{ $result->percentage }}%</td>
 
                     <th>Grade</th>
-                    <td>A</td>
+                    <td>{{ $result->grade }}</td>
+                </tr>
+
+                <tr>
+                    <th>Started At</th>
+                    <td>
+                        {{ \Carbon\Carbon::parse($result->started_at)->format('d M Y h:i A') }}
+                    </td>
+
+                    <th>Submitted At</th>
+                    <td>
+                        {{ \Carbon\Carbon::parse($result->submitted_at)->format('d M Y h:i A') }}
+                    </td>
                 </tr>
 
                 <tr>
                     <th>Final Status</th>
+
                     <td colspan="3">
 
-                        <span class="status-pass">
-                            PASS
+                        <span class="{{ strtolower($result->result_status)=='pass' ? 'status-pass' : 'status-fail' }}">
+
+                            {{ strtoupper($result->result_status) }}
+
                         </span>
 
                     </td>
+
                 </tr>
 
             </table>
 
         </div>
 
-        <!-- FOOTER BUTTONS -->
+        <!-- FOOTER -->
 
         <div class="result-footer">
 
-            <button class="btn btn-dark">
-
-                Print Result
-
-            </button>
-
-            <button class="btn btn-primary">
-
-                Download PDF
-
-            </button>
+            <a href="{{ route('student.logout') }}" class="btn btn-danger">
+                Logout
+            </a>
 
         </div>
 

@@ -102,6 +102,7 @@
 
         @csrf
         <input type="hidden" id="currentQuestion" value="{{ $currentQuestion }}">
+        <input type="hidden" id="totalQuestions" value="{{ $totalQuestions }}">
 
         <div id="questionContainer">
 

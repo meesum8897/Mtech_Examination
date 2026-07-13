@@ -31,8 +31,6 @@
 
         <div class="admin-login-content">
 
-            <img src="https://mtechinstitute.com/wp-content/uploads/2025/03/weblogoblue.png">
-
             <h1>
                 Examination Management System
             </h1>
@@ -52,14 +50,14 @@
 
         <div class="admin-login-box">
 
+            <div class="admin-login-logo">
+                <img
+                    src="https://mtechinstitute.com/wp-content/uploads/2025/03/weblogoblue.png" alt="M-Tech Logo">
+            </div>
+
             <div class="admin-login-header">
-
                 <h2>Admin / Teacher Login</h2>
-
-                <p>
-                    Login to continue
-                </p>
-
+                <p> Login to continue </p>
             </div>
 
             <!-- FORM -->
@@ -115,6 +113,7 @@
     </div>
 
 </div>
+
 
 </body>
 </html><?php /**PATH C:\xampp\htdocs\mtech_exam\resources\views/admin/auth/login.blade.php ENDPATH**/ ?>

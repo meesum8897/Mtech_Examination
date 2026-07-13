@@ -97,8 +97,27 @@
         </div>
 
     </div>
+    
 
 </div>
+<!-- Registered With -->
+
+<div class="registered-card">
+
+    <p class="registered-title">
+        Registered With
+    </p>
+
+    <div class="registered-logos">
+
+        <img src="{{ asset('assets/images/navttc.png') }}" alt="NAVTTC">
+
+        <img src="{{ asset('assets/images/sbte.png') }}" alt="SBTE">
+
+    </div>
+
+</div>
+
 
 </body>
 </html>

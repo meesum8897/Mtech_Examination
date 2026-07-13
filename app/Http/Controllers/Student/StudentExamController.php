@@ -9,6 +9,7 @@ use App\Models\Exam;
 use App\Models\ExamAssignment;
 use App\Models\ExamAttempt;
 use App\Models\ExamAttemptAnswer;
+use App\Models\ExamResult;
 use Illuminate\Support\Facades\DB;
 
 class StudentExamController extends Controller
@@ -507,7 +508,7 @@ class StudentExamController extends Controller
         $request->validate([
             'attempt_answer_id' => 'required|exists:exam_attempt_answers,id',
             'selected_answer' => 'nullable',
-            'direction' => 'required|in:next,previous',
+            'direction' => 'required|in:next,previous,finish',
             'current_question' => 'required|integer',
         ]);
 
@@ -527,6 +528,14 @@ class StudentExamController extends Controller
             'answered_at'=>now(),
         ]);
 
+        if ($request->direction == 'finish') {
+
+            return response()->json([
+                'saved' => true
+            ]);
+
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Load Attempt
@@ -534,9 +543,16 @@ class StudentExamController extends Controller
         */
 
         $attempt = ExamAttempt::with([
-            'assignment.exam',
-            'answers.question'
-        ])->findOrFail(session('attempt_id'));
+                'assignment.exam',
+                'answers.question'
+            ])->find(session('attempt_id'));
+
+            if (!$attempt) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attempt already finished.'
+                ]);
+            }
 
         $totalQuestions = $attempt->answers()->count();
 
@@ -590,11 +606,7 @@ class StudentExamController extends Controller
 
         if ($questionNo > $totalQuestions) {
 
-            return response()->json([
-
-                'finished' => true
-
-            ]);
+            $questionNo = $totalQuestions;
 
         }
 
@@ -663,21 +675,194 @@ class StudentExamController extends Controller
 
     }
 
-    public function finishExam()
-    {
-        $attempt = ExamAttempt::findOrFail(session('attempt_id'));
+public function finishExam()
+{
+    DB::beginTransaction();
+
+    try {
+
+        $student = Student::findOrFail(session('student_id'));
+
+        $attempt = ExamAttempt::with([
+            'assignment.exam.questions',
+            'answers.question'
+        ])->findOrFail(session('attempt_id'));
+
+        $exam = $attempt->assignment->exam;
+
+        $correctAnswers = 0;
+        $wrongAnswers = 0;
+        $notAttempted = 0;
+
+        $obtainedMarks = 0;
+        $totalMarks = 0;
+
+        foreach ($attempt->answers as $answer) {
+
+            // Marks from Pivot Table
+            $pivot = $exam->questions
+                ->firstWhere('id', $answer->question_id);
+
+            $questionMarks = $pivot
+                ? $pivot->pivot->marks
+                : 1;
+
+            $totalMarks += $questionMarks;
+
+            // Not Attempted
+            if (empty($answer->selected_answer)) {
+
+                $notAttempted++;
+
+                $answer->update([
+                    'is_correct' => false,
+                    'marks_obtained' => 0
+                ]);
+
+                continue;
+            }
+
+            // Correct Answer
+            if ($answer->selected_answer == $answer->question->correct_answer) {
+
+                $correctAnswers++;
+
+                $obtainedMarks += $questionMarks;
+
+                $answer->update([
+                    'is_correct' => true,
+                    'marks_obtained' => $questionMarks
+                ]);
+
+            } else {
+
+                $wrongAnswers++;
+
+                $answer->update([
+                    'is_correct' => false,
+                    'marks_obtained' => 0
+                ]);
+            }
+        }
+
+        //-------------------------------------
+        // Percentage
+        //-------------------------------------
+
+        $percentage = $totalMarks > 0
+            ? round(($obtainedMarks / $totalMarks) * 100, 2)
+            : 0;
+
+        //-------------------------------------
+        // Grade
+        //-------------------------------------
+
+        if ($percentage >= 90) {
+
+            $grade = "A+";
+
+        } elseif ($percentage >= 80) {
+
+            $grade = "A";
+
+        } elseif ($percentage >= 70) {
+
+            $grade = "B";
+
+        } elseif ($percentage >= 60) {
+
+            $grade = "C";
+
+        } elseif ($percentage >= 50) {
+
+            $grade = "D";
+
+        } else {
+
+            $grade = "F";
+        }
+
+        //-------------------------------------
+        // Pass / Fail
+        //-------------------------------------
+
+        $resultStatus = $obtainedMarks >= $exam->passing_marks
+            ? "Pass"
+            : "Fail";
+
+        //-------------------------------------
+        // Update Attempt
+        //-------------------------------------
 
         $attempt->update([
-            'status' => 'Completed',   // ✅ Changed
-            'ended_at' => now(),       // ✅ Migration me ended_at hai
+            'status' => 'Completed',
+            'ended_at' => now(),
+            'obtained_marks' => $obtainedMarks,
         ]);
+
+        //-------------------------------------
+        // Time Taken
+        //-------------------------------------
+
+        $timeTaken = $attempt->started_at
+            ? $attempt->started_at->diffInMinutes(now())
+            : 0;
+
+        //-------------------------------------
+        // Save Result
+        //-------------------------------------
+
+        ExamResult::updateOrCreate(
+
+            [
+                'student_id' => $student->id,
+                'exam_id' => $exam->id,
+            ],
+
+            [
+                'total_questions' => $attempt->answers->count(),
+                'correct_answers' => $correctAnswers,
+                'wrong_answers' => $wrongAnswers,
+                'not_attempted' => $notAttempted,
+                'total_marks' => $totalMarks,
+                'obtained_marks' => $obtainedMarks,
+                'percentage' => $percentage,
+                'grade' => $grade,
+                'result_status' => $resultStatus,
+                'started_at' => $attempt->started_at,
+                'submitted_at' => now(),
+                'time_taken' => $timeTaken,
+                'is_active' => true,
+            ]
+
+        );
+
+        DB::commit();
 
         session()->forget('attempt_id');
 
         return response()->json([
+
+            'success' => true,
+
             'redirect' => route('student.result')
+
         ]);
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        return response()->json([
+
+            'success' => false,
+
+            'message' => $e->getMessage()
+
+        ],500);
+
     }
+}
 
     public function result()
     {
@@ -685,7 +870,7 @@ class StudentExamController extends Controller
 
         $attempt = ExamAttempt::with([
             'answers.question',
-            'assignment.exam'
+            'assignment.exam.questions'
         ])
         ->where('student_id', $student->id)
         ->latest()
@@ -696,27 +881,151 @@ class StudentExamController extends Controller
             return redirect()
                 ->route('student.rules')
                 ->with('error', 'No examination record found.');
-
         }
+
+        $exam = $attempt->assignment->exam;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Questions
+        |--------------------------------------------------------------------------
+        */
 
         $totalQuestions = $attempt->answers->count();
 
-        $answered = $attempt->answers
+        $attempted = $attempt->answers
             ->whereNotNull('selected_answer')
             ->count();
 
-        $unanswered = $attempt->answers
+        $notAttempted = $attempt->answers
             ->whereNull('selected_answer')
             ->count();
 
-        return view('student.result', compact(
+        /*
+        |--------------------------------------------------------------------------
+        | Correct / Wrong
+        |--------------------------------------------------------------------------
+        */
 
+        $correctAnswers = 0;
+        $wrongAnswers = 0;
+        $obtainedMarks = 0;
+
+        foreach ($attempt->answers as $answer) {
+
+            if (is_null($answer->selected_answer)) {
+                continue;
+            }
+
+            if ($answer->selected_answer == $answer->question->correct_answer) {
+
+                $correctAnswers++;
+
+                $pivot = $exam->questions
+                    ->firstWhere('id', $answer->question_id);
+
+                if ($pivot) {
+                    $obtainedMarks += $pivot->pivot->marks;
+                }
+
+            } else {
+
+                $wrongAnswers++;
+
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Total Marks
+        |--------------------------------------------------------------------------
+        */
+
+        $totalMarks = $exam->questions->sum(function ($question) {
+            return $question->pivot->marks;
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Percentage
+        |--------------------------------------------------------------------------
+        */
+
+        $percentage = $totalMarks > 0
+            ? round(($obtainedMarks / $totalMarks) * 100, 2)
+            : 0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Grade
+        |--------------------------------------------------------------------------
+        */
+
+        if ($percentage >= 90) {
+            $grade = 'A+';
+        } elseif ($percentage >= 80) {
+            $grade = 'A';
+        } elseif ($percentage >= 70) {
+            $grade = 'B';
+        } elseif ($percentage >= 60) {
+            $grade = 'C';
+        } elseif ($percentage >= 50) {
+            $grade = 'D';
+        } else {
+            $grade = 'F';
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Result Status
+        |--------------------------------------------------------------------------
+        */
+
+        $resultStatus = $obtainedMarks >= $exam->passing_marks
+            ? 'Pass'
+            : 'Fail';
+
+        /*
+        |--------------------------------------------------------------------------
+        | Save Result
+        |--------------------------------------------------------------------------
+        */
+
+        $result = ExamResult::updateOrCreate(
+
+            [
+                'student_id' => $student->id,
+                'exam_id'    => $exam->id,
+            ],
+
+            [
+                'total_questions' => $totalQuestions,
+                'correct_answers' => $correctAnswers,
+                'wrong_answers'   => $wrongAnswers,
+                'not_attempted'   => $notAttempted,
+
+                'total_marks'     => $totalMarks,
+                'obtained_marks'  => $obtainedMarks,
+
+                'percentage'      => $percentage,
+                'grade'           => $grade,
+                'result_status'   => $resultStatus,
+
+                'started_at'      => $attempt->started_at,
+                'submitted_at'    => $attempt->submitted_at,
+
+                'time_taken'      => $attempt->started_at && $attempt->submitted_at
+                    ? $attempt->started_at->diffInMinutes($attempt->submitted_at)
+                    : 0,
+            ]
+        );
+
+        return view('student.result', compact(
             'student',
             'attempt',
-            'totalQuestions',
-            'answered',
-            'unanswered'
-
+            'exam',
+            'result',
+            'attempted'
         ));
     }
 }

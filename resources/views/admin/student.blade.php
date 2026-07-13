@@ -712,7 +712,7 @@ ADD STUDENT MODAL
                     <input
                         type="text"
                         id="password_confirmation"
-                        class="form-control"
+                        class="form-control @error('password_confirmation') is-invalid @enderror""
                         name="password_confirmation"
                         value="{{ old('password_confirmation', $generatedPassword) }}"
                         readonly>
