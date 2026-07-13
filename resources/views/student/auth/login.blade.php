@@ -8,6 +8,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
+<link rel="icon" type="image/x-icon" href="{{ asset('assets/images/mtech-logo.png') }}">
 
 </head>
 
@@ -19,7 +20,7 @@
 
 <div class="top-header">
 
-    <img src="https://mtechinstitute.com/wp-content/uploads/2025/03/weblogoblue.png" alt="MTECH Logo">
+    <img src="{{ asset('assets/images/mtech-logo.png') }}" alt="MTECH Logo">
 
 </div>
 

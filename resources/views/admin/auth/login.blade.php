@@ -52,7 +52,7 @@
 
             <div class="admin-login-logo">
                 <img
-                    src="https://mtechinstitute.com/wp-content/uploads/2025/03/weblogoblue.png" alt="M-Tech Logo">
+                    src="{{ asset('assets/images/mtech-logo.png') }}" alt="M-Tech Logo">
             </div>
 
             <div class="admin-login-header">
